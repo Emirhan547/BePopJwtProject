@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="BePopJwt.API/BePopJwt.API.csproj" Id="d37728df-f42f-4767-bdad-5f29e9f46ff1" />
+  <Project Path="BePopJwt.Business/BePopJwt.Business.csproj" Id="09b3bb5a-e628-4c6c-89bb-80e0d3b48826" />
+  <Project Path="BePopJwt.DataAccess/BePopJwt.DataAccess.csproj" Id="419f3899-b809-4848-9725-c67826bc58cc" />
+  <Project Path="BePopJwt.Entity/BePopJwt.Entity.csproj" Id="d43a9755-0988-4325-b820-fecf678bb4b5" />
+  <Project Path="BePopJwt.WebUI/BePopJwt.WebUI.csproj" Id="a1bbd756-25b2-44d6-97b2-7190f04469ab" />
+</Solution>

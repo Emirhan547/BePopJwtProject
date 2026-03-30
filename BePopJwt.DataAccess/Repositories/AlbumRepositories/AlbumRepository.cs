@@ -1,0 +1,16 @@
+﻿using BePopJwt.DataAccess.Context;
+using BePopJwt.DataAccess.Repositories.GenericRepositories;
+using BePopJwt.Entity.Entities;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace BePopJwt.DataAccess.Repositories.AlbumRepositories
+{
+    public class AlbumRepository : GenericRepository<Album>, IAlbumRepository
+    {
+        public AlbumRepository(AppDbContext _context) : base(_context)
+        {
+        }
+    }
+}
