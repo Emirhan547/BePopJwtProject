@@ -13,6 +13,6 @@ namespace BePopJwt.Business.Services.ArtistServices
         Task<BaseResult<CreateArtistDto>> CreateAsync(CreateArtistDto createArtistDto);
         Task<BaseResult<UpdateArtistDto>> UpdateAsync(UpdateArtistDto updateArtistDto);
         Task<BaseResult<bool>>DeleteAsync(int id);
-        Task<BaseResult<List<ResultArtistDto>>> GetAllWithDetailsAsync();
+        
     }
 }

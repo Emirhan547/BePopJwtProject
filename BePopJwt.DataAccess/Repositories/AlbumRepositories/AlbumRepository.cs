@@ -13,12 +13,6 @@ namespace BePopJwt.DataAccess.Repositories.AlbumRepositories
         public AlbumRepository(AppDbContext _context) : base(_context)
         {
         }
-        public async Task<List<Album>> GetAllWithArtistAsync()
-        {
-            return await _context.Albums
-                .Include(x => x.Artist)
-                .Include(x => x.Songs)
-                .ToListAsync();
-        }
+        
     }
 }

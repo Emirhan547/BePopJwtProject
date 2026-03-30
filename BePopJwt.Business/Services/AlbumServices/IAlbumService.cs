@@ -13,6 +13,6 @@ namespace BePopJwt.Business.Services.AlbumServices
         Task<BaseResult<ResultAlbumDto>> CreateAsync(CreateAlbumDto createAlbumDto);
         Task<BaseResult<ResultAlbumDto>> UpdateAsync(UpdateAlbumDto updateAlbumDto);
         Task<BaseResult<bool>>DeleteAsync(int id);
-        Task<BaseResult<List<ResultAlbumDto>>> GetAllWithDetailsAsync();
+       
     }
 }

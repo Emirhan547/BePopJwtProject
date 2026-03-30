@@ -14,12 +14,6 @@ namespace BePopJwt.DataAccess.Repositories.ArtistRepositories
         {
         }
 
-        public async Task<List<Artist>> GetAllWithAlbumsAsync()
-        {
-            return await _context.Artists
-         .Include(x => x.Albums)
-             .ThenInclude(a => a.Songs)
-         .ToListAsync();
-        }
+        
     }
 }
