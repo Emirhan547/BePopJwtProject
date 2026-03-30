@@ -9,7 +9,7 @@ namespace BePopJwt.DataAccess.Repositories.GenericRepositories
     {
         Task<TEntity?>GetByIdAsync(int id);
         Task<IList<TEntity>> GetAllAsync();
-        Task CreateAsnc(TEntity entity);
+        Task CreateAsync(TEntity entity);
         void Delete(TEntity entity);
         void Update(TEntity entity);
     }

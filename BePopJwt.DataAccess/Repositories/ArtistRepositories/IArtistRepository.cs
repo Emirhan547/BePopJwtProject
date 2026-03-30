@@ -8,5 +8,6 @@ namespace BePopJwt.DataAccess.Repositories.ArtistRepositories
 {
     public interface IArtistRepository:IRepository<Artist>
     {
+        Task<List<Artist>> GetAllWithAlbumsAsync();
     }
 }

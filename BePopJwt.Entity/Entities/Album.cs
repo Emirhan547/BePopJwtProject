@@ -7,11 +7,10 @@ namespace BePopJwt.Entity.Entities
 {
     public class Album:BaseEntity
     {
-
         public string Name { get; set; }
 
         public string CoverUrl { get; set; }
-        public DateTime ReleaseDate { get; set; }
+        public DateTime ReleaseDate { get; set; }= DateTime.Now;
 
         public int ArtistId { get; set; }
         public Artist Artist { get; set; }

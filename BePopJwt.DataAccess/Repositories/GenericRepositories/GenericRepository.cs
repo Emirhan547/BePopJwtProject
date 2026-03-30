@@ -7,10 +7,16 @@ using System.Text;
 
 namespace BePopJwt.DataAccess.Repositories.GenericRepositories
 {
-    public class GenericRepository<TEntity>(AppDbContext _context) : IRepository<TEntity> where TEntity : BaseEntity
+    public class GenericRepository<TEntity> : IRepository<TEntity> where TEntity : BaseEntity
     {
+        protected readonly AppDbContext _context;
 
-        public async Task CreateAsnc(TEntity entity)
+        public GenericRepository(AppDbContext context)
+        {
+            _context = context;
+        }
+
+        public async Task CreateAsync(TEntity entity)
         {
             await _context.AddAsync(entity);
         }
