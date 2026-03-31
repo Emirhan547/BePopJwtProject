@@ -11,7 +11,7 @@ namespace BePopJwt.Business.Dtos.AlbumDtos
         public string? Name { get; set; }
 
         public string? CoverUrl { get; set; }
-        public DateTime ReleaseDate { get; set; } = DateTime.Now;
+        public DateTime? ReleaseDate { get; set; } = DateTime.Now;
 
         public int? ArtistId { get; set; }
 

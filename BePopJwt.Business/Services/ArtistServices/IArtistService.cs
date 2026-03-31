@@ -1,5 +1,6 @@
 ﻿using BePopJwt.Business.Base;
 using BePopJwt.Business.Dtos.ArtistDtos;
+using BePopJwt.Entity.Entities;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -13,6 +14,6 @@ namespace BePopJwt.Business.Services.ArtistServices
         Task<BaseResult<CreateArtistDto>> CreateAsync(CreateArtistDto createArtistDto);
         Task<BaseResult<UpdateArtistDto>> UpdateAsync(UpdateArtistDto updateArtistDto);
         Task<BaseResult<bool>>DeleteAsync(int id);
-        
+        Task<BaseResult<List<ResultArtistWithAlbumDto>>> GetArtistsWithAlbumsAsync();
     }
 }

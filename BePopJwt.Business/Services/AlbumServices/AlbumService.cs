@@ -47,6 +47,13 @@ namespace BePopJwt.Business.Services.AlbumServices
             return BaseResult<bool>.Success(true);
         }
 
+        public async Task<BaseResult<List<ResultAlbumDto>>> GetAlbumsWithArtistAsync()
+        {
+            var albumsWithArtist= await _repository.GetAlbumsWithArtistAsync();
+            var mapped=albumsWithArtist.Adapt<List<ResultAlbumDto>>();
+            return BaseResult<List<ResultAlbumDto>>.Success(mapped);
+        }
+
         public async Task<BaseResult<List<ResultAlbumDto>>> GetAllAsync()
         {
            var albums=await _repository.GetAllAsync();
@@ -82,12 +89,6 @@ namespace BePopJwt.Business.Services.AlbumServices
             return uow > 0 ? BaseResult<ResultAlbumDto>.Success(mappedAlbums.Adapt<ResultAlbumDto>())
                 : BaseResult<ResultAlbumDto>.Fail("Failed to update album.");
         }
-        public async Task<BaseResult<List<ResultAlbumDto>>> GetAllWithDetailsAsync()
-        {
-            var albums = await _repository.GetAllWithDetailsAsync();
-
-            return BaseResult<List<ResultAlbumDto>>
-                .Success(albums.Adapt<List<ResultAlbumDto>>());
-        }
+        
     }
 }

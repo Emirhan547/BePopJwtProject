@@ -46,14 +46,13 @@ namespace BePopJwt.Business.Services.ArtistServices
             return BaseResult<List<ResultArtistDto>>.Success(mappedArtist);
         }
 
-        public async Task<BaseResult<List<ResultArtistDto>>> GetAllWithDetailsAsync()
+        public async Task<BaseResult<List<ResultArtistWithAlbumDto>>> GetArtistsWithAlbumsAsync()
         {
-            var artists = await _artistRepository.GetAllWithAlbumsAsync();
-
-            return BaseResult<List<ResultArtistDto>>
-                .Success(artists.Adapt<List<ResultArtistDto>>());
+            var artistWithAlbums=await _artistRepository.GetArtistsWithAlbumsAsync();
+            var mapped=artistWithAlbums.Adapt<List<ResultArtistWithAlbumDto>>();
+            return BaseResult<List<ResultArtistWithAlbumDto>>.Success(mapped);
         }
-
+       
         public async Task<BaseResult<ResultArtistDto>> GetByIdAsync(int id)
         {
             var artist = await _artistRepository.GetByIdAsync(id);

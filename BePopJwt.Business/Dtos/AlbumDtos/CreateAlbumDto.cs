@@ -12,7 +12,7 @@ namespace BePopJwt.Business.Dtos.AlbumDtos
 
         public string? CoverUrl { get; set; }
         [JsonIgnore]
-        public DateTime ReleaseDate { get; set; } = DateTime.Now;
+        public DateTime? ReleaseDate { get; set; } = DateTime.Now;
 
         public int? ArtistId { get; set; }
 

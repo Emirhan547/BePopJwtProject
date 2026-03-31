@@ -1,5 +1,9 @@
 ﻿using BePopJwt.Business.Services.AlbumServices;
 using BePopJwt.Business.Services.ArtistServices;
+using BePopJwt.Business.Services.BannerServices;
+using BePopJwt.Business.Services.PackageServices;
+using BePopJwt.Business.Services.SongServices;
+using BePopJwt.Business.Services.UserSongHistoryServices;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -16,6 +20,10 @@ namespace BePopJwt.Business.Extensions
             services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
             services.AddScoped<IAlbumService, AlbumService>();
             services.AddScoped<IArtistService, ArtistService>();
+            services.AddScoped<IBannerService, BannerService>();
+            services.AddScoped<IPackageService, PackageService>();
+            services.AddScoped<ISongService, SongService>();
+            services.AddScoped<IUserSongHistoryService, UserSongHistoryService>();
 
         }
     }
