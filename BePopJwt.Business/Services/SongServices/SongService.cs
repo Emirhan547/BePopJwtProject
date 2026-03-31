@@ -1,5 +1,6 @@
 ﻿using BePopJwt.Business.Base;
 using BePopJwt.Business.Dtos.SongDtos;
+using BePopJwt.DataAccess.Repositories.GenericRepositories;
 using BePopJwt.DataAccess.Repositories.SongRepositories;
 using BePopJwt.DataAccess.Uow;
 using BePopJwt.Entity.Entities;
@@ -90,22 +91,7 @@ namespace BePopJwt.Business.Services.SongServices
             return uow<0?BaseResult<ResultSongDto>.Fail("Songs Güncellenemedi"):BaseResult<ResultSongDto>.Success(mapped.Adapt<ResultSongDto>());
 
         }
-        public async Task<BaseResult<ResultSongWithAlbumDto>> GetSongWithAlbumByIdAsync(int id)
-        {
-            var song = await _repository.GetSongWithAlbumByIdAsync(id);
-            if (song is null)
-            {
-                return BaseResult<ResultSongWithAlbumDto>.Fail("Songs Bulunamadı");
-            }
-
-            return BaseResult<ResultSongWithAlbumDto>.Success(song.Adapt<ResultSongWithAlbumDto>());
-        }
-
-        public async Task<BaseResult<List<ResultSongWithAlbumDto>>> GetSongsWithAlbumAsync()
-        {
-            var songs = await _repository.GetSongsWithAlbumAsync();
-            return BaseResult<List<ResultSongWithAlbumDto>>.Success(songs.Adapt<List<ResultSongWithAlbumDto>>());
-        }
+        
 
     }
 }

@@ -21,7 +21,16 @@ namespace BePopJwt.DataAccess.Repositories.UserSongRepositories
                 .Include(x => x.User)
                 .ToListAsync();
         }
-
+        public async Task<List<UserSongHistory>> GetHistoriesWithSongAndUserAsync(int userId)
+        {
+            return await _context.UserSongHistories
+                .AsNoTracking()
+                .Include(x => x.Song)
+                .Include(x => x.User)
+                .Where(x => x.UserId == userId)
+                .OrderByDescending(x => x.PlayedAt)
+                .ToListAsync();
+        }
         public async Task<UserSongHistory?> GetHistoryWithSongAndUserByIdAsync(int id)
         {
             return await _context.UserSongHistories

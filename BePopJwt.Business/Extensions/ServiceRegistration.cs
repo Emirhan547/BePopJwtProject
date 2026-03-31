@@ -1,7 +1,9 @@
 ﻿using BePopJwt.Business.Services.AlbumServices;
 using BePopJwt.Business.Services.ArtistServices;
+using BePopJwt.Business.Services.AuthServices;
 using BePopJwt.Business.Services.BannerServices;
 using BePopJwt.Business.Services.PackageServices;
+using BePopJwt.Business.Services.PlayerServices;
 using BePopJwt.Business.Services.SongServices;
 using BePopJwt.Business.Services.UserSongHistoryServices;
 using FluentValidation;
@@ -23,6 +25,8 @@ namespace BePopJwt.Business.Extensions
             services.AddScoped<IBannerService, BannerService>();
             services.AddScoped<IPackageService, PackageService>();
             services.AddScoped<ISongService, SongService>();
+            services.AddScoped<IAuthService, AuthService>();
+            services.AddScoped<IPlayerService, PlayerService>();
             services.AddScoped<IUserSongHistoryService, UserSongHistoryService>();
 
         }

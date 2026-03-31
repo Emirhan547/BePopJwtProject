@@ -10,5 +10,6 @@ namespace BePopJwt.DataAccess.Repositories.UserSongRepositories
     {
         Task<List<UserSongHistory>> GetHistoriesWithSongAndUserAsync();
         Task<UserSongHistory?> GetHistoryWithSongAndUserByIdAsync(int id);
+        Task<List<UserSongHistory>> GetHistoriesWithSongAndUserAsync(int userId);
     }
 }

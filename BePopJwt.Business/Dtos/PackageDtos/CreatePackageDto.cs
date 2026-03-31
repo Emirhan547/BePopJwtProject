@@ -11,6 +11,5 @@ namespace BePopJwt.Business.Dtos.PackageDtos
         public int Level { get; set; }
         public decimal Price { get; set; }
 
-        public List<AppUser> Users { get; set; }
     }
 }
