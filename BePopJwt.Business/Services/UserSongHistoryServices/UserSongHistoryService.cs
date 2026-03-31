@@ -26,7 +26,21 @@ namespace BePopJwt.Business.Services.UserSongHistoryServices
             var uow = await _unitOfWork.SaveChangesAsync();
             return uow < 0 ? BaseResult<ResultUserSongHistoryDto>.Fail("UserSong eklenemedi") : BaseResult<ResultUserSongHistoryDto>.Success(mapped.Adapt<ResultUserSongHistoryDto>());
         }
+        public async Task<BaseResult<List<ResultUserSongHistoryWithDetailsDto>>> GetAllWithSongAndUserAsync()
+        {
+            var values = await _repository.GetHistoriesWithSongAndUserAsync();
+            return BaseResult<List<ResultUserSongHistoryWithDetailsDto>>.Success(values.Adapt<List<ResultUserSongHistoryWithDetailsDto>>());
+        }
+        public async Task<BaseResult<ResultUserSongHistoryWithDetailsDto>> GetByIdWithSongAndUserAsync(int id)
+        {
+            var values = await _repository.GetHistoryWithSongAndUserByIdAsync(id);
+            if (values is null)
+            {
+                return BaseResult<ResultUserSongHistoryWithDetailsDto>.Fail("UserSong Bulunamadı");
+            }
 
+            return BaseResult<ResultUserSongHistoryWithDetailsDto>.Success(values.Adapt<ResultUserSongHistoryWithDetailsDto>());
+        }
         public async Task<BaseResult<bool>> DeleteAsync(int id)
         {
             var values = await _repository.GetByIdAsync(id);

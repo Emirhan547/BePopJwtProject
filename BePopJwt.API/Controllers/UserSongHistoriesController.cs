@@ -16,6 +16,19 @@ namespace BePopJwt.API.Controllers
             var albums = await _userSongHistoryService.GetAllAsync();
             return albums.IsSuccess ? Ok(albums) : BadRequest(albums);
         }
+        [HttpGet("WithSongAndUser")]
+        public async Task<IActionResult> GetAllWithSongAndUser()
+        {
+            var values = await _userSongHistoryService.GetAllWithSongAndUserAsync();
+            return values.IsSuccess ? Ok(values) : BadRequest(values);
+        }
+
+        [HttpGet("WithSongAndUser/{id}")]
+        public async Task<IActionResult> GetByIdWithSongAndUser(int id)
+        {
+            var value = await _userSongHistoryService.GetByIdWithSongAndUserAsync(id);
+            return value.IsSuccess ? Ok(value) : BadRequest(value);
+        }
 
         [HttpPost]
         public async Task<IActionResult> Create(CreateUserSongHistoryDto create)

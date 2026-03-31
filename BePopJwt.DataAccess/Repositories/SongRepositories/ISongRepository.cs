@@ -8,5 +8,7 @@ namespace BePopJwt.DataAccess.Repositories.SongRepositories
 {
     public interface ISongRepository:IRepository<Song>
     {
+        Task<List<Song>> GetSongsWithAlbumAsync();
+        Task<Song?> GetSongWithAlbumByIdAsync(int id);
     }
 }

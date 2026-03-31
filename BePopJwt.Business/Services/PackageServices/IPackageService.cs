@@ -9,7 +9,9 @@ namespace BePopJwt.Business.Services.PackageServices
     public interface IPackageService
     {
         Task<BaseResult<List<ResultPackageDto>>> GetAllAsync();
+        Task<BaseResult<List<ResultPackageWithUsersDto>>> GetPackagesWithUsersAsync();
         Task<BaseResult<ResultPackageDto>> GetByIdAsync(int id);
+        Task<BaseResult<ResultPackageWithUsersDto>> GetPackageWithUsersByIdAsync(int id);
         Task<BaseResult<ResultPackageDto>> CreateAsync(CreatePackageDto createPackageDto);
         Task<BaseResult<ResultPackageDto>> UpdateAsync(UpdatePackageDto updatePackageDto);
         Task<BaseResult<bool>>DeleteAsync(int id);

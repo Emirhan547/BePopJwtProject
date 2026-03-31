@@ -8,5 +8,7 @@ namespace BePopJwt.DataAccess.Repositories.UserSongRepositories
 {
     public interface IUserSongHistoryRepository:IRepository<UserSongHistory>
     {
+        Task<List<UserSongHistory>> GetHistoriesWithSongAndUserAsync();
+        Task<UserSongHistory?> GetHistoryWithSongAndUserByIdAsync(int id);
     }
 }

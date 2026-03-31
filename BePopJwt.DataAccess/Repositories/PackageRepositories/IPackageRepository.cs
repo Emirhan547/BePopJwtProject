@@ -8,5 +8,7 @@ namespace BePopJwt.DataAccess.Repositories.PackageRepositories
 {
     public interface IPackageRepository:IRepository<Package>
     {
+        Task<List<Package>> GetPackagesWithUsersAsync();
+        Task<Package?> GetPackageWithUsersByIdAsync(int id);
     }
 }

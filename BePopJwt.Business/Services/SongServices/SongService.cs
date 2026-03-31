@@ -38,7 +38,22 @@ namespace BePopJwt.Business.Services.SongServices
             var uow=await _unitOfWork.SaveChangesAsync();
             return uow > 0 ? BaseResult<bool>.Success(true) : BaseResult<bool>.Fail("Song Silinemedi");
         }
+        public async Task<BaseResult<ResultSongWithAlbumDto>> GetSongWithAlbumByIdAsync(int id)
+        {
+            var song = await _repository.GetSongWithAlbumByIdAsync(id);
+            if (song is null)
+            {
+                return BaseResult<ResultSongWithAlbumDto>.Fail("Songs Bulunamadı");
+            }
 
+            return BaseResult<ResultSongWithAlbumDto>.Success(song.Adapt<ResultSongWithAlbumDto>());
+        }
+
+        public async Task<BaseResult<List<ResultSongWithAlbumDto>>> GetSongsWithAlbumAsync()
+        {
+            var songs = await _repository.GetSongsWithAlbumAsync();
+            return BaseResult<List<ResultSongWithAlbumDto>>.Success(songs.Adapt<List<ResultSongWithAlbumDto>>());
+        }
         public async Task<BaseResult<List<ResultSongDto>>> GetAllAsync()
         {
             var songs=await _repository.GetAllAsync();
@@ -75,5 +90,22 @@ namespace BePopJwt.Business.Services.SongServices
             return uow<0?BaseResult<ResultSongDto>.Fail("Songs Güncellenemedi"):BaseResult<ResultSongDto>.Success(mapped.Adapt<ResultSongDto>());
 
         }
+        public async Task<BaseResult<ResultSongWithAlbumDto>> GetSongWithAlbumByIdAsync(int id)
+        {
+            var song = await _repository.GetSongWithAlbumByIdAsync(id);
+            if (song is null)
+            {
+                return BaseResult<ResultSongWithAlbumDto>.Fail("Songs Bulunamadı");
+            }
+
+            return BaseResult<ResultSongWithAlbumDto>.Success(song.Adapt<ResultSongWithAlbumDto>());
+        }
+
+        public async Task<BaseResult<List<ResultSongWithAlbumDto>>> GetSongsWithAlbumAsync()
+        {
+            var songs = await _repository.GetSongsWithAlbumAsync();
+            return BaseResult<List<ResultSongWithAlbumDto>>.Success(songs.Adapt<List<ResultSongWithAlbumDto>>());
+        }
+
     }
 }

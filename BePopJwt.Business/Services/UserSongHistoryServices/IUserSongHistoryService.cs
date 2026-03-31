@@ -9,7 +9,9 @@ namespace BePopJwt.Business.Services.UserSongHistoryServices
     public interface IUserSongHistoryService
     {
         Task<BaseResult<List<ResultUserSongHistoryDto>>> GetAllAsync();
+        Task<BaseResult<List<ResultUserSongHistoryWithDetailsDto>>> GetAllWithSongAndUserAsync();
         Task<BaseResult<ResultUserSongHistoryDto>> GetByIdAsync(int id);
+        Task<BaseResult<ResultUserSongHistoryWithDetailsDto>> GetByIdWithSongAndUserAsync(int id);
         Task<BaseResult<ResultUserSongHistoryDto>> CreateAsync(CreateUserSongHistoryDto create);
         Task<BaseResult<ResultUserSongHistoryDto>>UpdateAsync(UpdateUserSongHistoryDto update);
         Task<BaseResult<bool>> DeleteAsync(int id);

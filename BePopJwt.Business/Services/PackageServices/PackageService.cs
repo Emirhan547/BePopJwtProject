@@ -57,7 +57,22 @@ namespace BePopJwt.Business.Services.PackageServices
             var mapped = package.Adapt<ResultPackageDto>();
             return BaseResult<ResultPackageDto>.Success(mapped);
         }
+        public async Task<BaseResult<ResultPackageWithUsersDto>> GetPackageWithUsersByIdAsync(int id)
+        {
+            var package = await _repository.GetPackageWithUsersByIdAsync(id);
+            if (package is null)
+            {
+                return BaseResult<ResultPackageWithUsersDto>.Fail("Package Bulunamadı");
+            }
 
+            return BaseResult<ResultPackageWithUsersDto>.Success(package.Adapt<ResultPackageWithUsersDto>());
+        }
+
+        public async Task<BaseResult<List<ResultPackageWithUsersDto>>> GetPackagesWithUsersAsync()
+        {
+            var packages = await _repository.GetPackagesWithUsersAsync();
+            return BaseResult<List<ResultPackageWithUsersDto>>.Success(packages.Adapt<List<ResultPackageWithUsersDto>>());
+        }
         public async Task<BaseResult<ResultPackageDto>> UpdateAsync(UpdatePackageDto updatePackageDto)
         {
             var validation = await _updateValidator.ValidateAsync(updatePackageDto);

@@ -16,7 +16,20 @@ namespace BePopJwt.API.Controllers
             var albums = await _songService.GetAllAsync();
             return albums.IsSuccess ? Ok(albums) : BadRequest(albums);
         }
-        
+        [HttpGet("WithAlbum")]
+        public async Task<IActionResult> GetSongsWithAlbum()
+        {
+            var songs = await _songService.GetSongsWithAlbumAsync();
+            return songs.IsSuccess ? Ok(songs) : BadRequest(songs);
+        }
+
+        [HttpGet("WithAlbum/{id}")]
+        public async Task<IActionResult> GetSongWithAlbumById(int id)
+        {
+            var song = await _songService.GetSongWithAlbumByIdAsync(id);
+            return song.IsSuccess ? Ok(song) : BadRequest(song);
+        }
+
         [HttpPost]
         public async Task<IActionResult> Create(CreateSongDto createSongDto)
         {

@@ -16,6 +16,19 @@ namespace BePopJwt.API.Controllers
             var result=await _service.GetAllAsync();
             return result.IsSuccess ? Ok(result) : BadRequest(result);
         }
+        [HttpGet("WithUsers")]
+        public async Task<IActionResult> GetPackagesWithUsers()
+        {
+            var result = await _service.GetPackagesWithUsersAsync();
+            return result.IsSuccess ? Ok(result) : BadRequest(result);
+        }
+
+        [HttpGet("WithUsers/{id}")]
+        public async Task<IActionResult> GetPackageWithUsersById(int id)
+        {
+            var result = await _service.GetPackageWithUsersByIdAsync(id);
+            return result.IsSuccess ? Ok(result) : BadRequest(result);
+        }
         [HttpPost]
         public async Task<IActionResult>Create(CreatePackageDto packageDto)
         {
