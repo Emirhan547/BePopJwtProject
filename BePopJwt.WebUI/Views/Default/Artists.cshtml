@@ -19,6 +19,7 @@
                                     <div class="text-white h5">@artist.Name</div>
                                     <div class="text-muted text-sm mb-2">@artist.Bio</div>
                                     <div class="text-muted text-sm">Albüm (@artist.Albums.Count): @string.Join(", ", artist.Albums.Select(a => a.Name).Take(3))</div>
+                                    <a href="@Url.Action("ArtistDetail", "Default", new { id = artist.Id })" class="btn btn-sm btn-primary mt-3">Detayı Gör</a>
                                 </div>
                             </div>
                         </div>

@@ -68,7 +68,7 @@
                                         <div><span class="badge badge-secondary">Şarkı @song.Level</span></div>
                                     </div>
                                     <button class="btn btn-sm btn-outline-warning favorite-btn mr-2" data-song-id="@song.Id">☆</button>
-                                    <button class="btn btn-sm btn-primary play-btn" data-song-id="@song.Id" data-source="@song.FilePath">Play</button>
+                                    <button class="btn btn-sm btn-primary play-btn" data-song-id="@song.Id">Play</button>
                                 </div>
                             </div>
                         }
@@ -145,11 +145,15 @@
             });
         });
         document.querySelectorAll('.play-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
+           btn.addEventListener('click', async () => {
                 currentSongId = Number(btn.dataset.songId || 0);
-                const source = btn.dataset.source;
-                if (!source) return;
-                player.src = source;
+                const sourceResponse = await fetch(`@Url.Action("SongSource", "Default")?songId=${currentSongId}`);
+                const sourceData = await sourceResponse.json();
+                if (!sourceResponse.ok || !sourceData.ok || !sourceData.source) {
+                    status.textContent = sourceData.message || 'Şarkı kaynağına erişilemedi.';
+                    return;
+                }
+                player.src = sourceData.source;
                 player.play();
                 startedAt = Date.now();
                 status.textContent = 'Çalıyor...';

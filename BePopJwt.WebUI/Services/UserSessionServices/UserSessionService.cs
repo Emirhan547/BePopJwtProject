@@ -53,7 +53,39 @@ public sealed class UserSessionService(IHttpContextAccessor accessor) : IUserSes
         return model;
         
     }
+    public void UpdateDisplayName(string displayName)
+    {
+        var http = accessor.HttpContext;
+        if (http is null)
+        {
+            return;
+        }
 
+        var existingToken = http.Request.Cookies[AuthCookieNames.JwtToken];
+        if (string.IsNullOrWhiteSpace(existingToken))
+        {
+            return;
+        }
+
+        var current = GetCurrent();
+        var options = new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = true,
+            SameSite = SameSiteMode.Strict,
+            Expires = DateTimeOffset.UtcNow.AddDays(7)
+        };
+
+        http.Response.Cookies.Append(UserNameCookie, displayName, options);
+        if (!string.IsNullOrWhiteSpace(current.PackageName))
+        {
+            http.Response.Cookies.Append(PackageNameCookie, current.PackageName, options);
+        }
+        if (current.PackageLevel is not null)
+        {
+            http.Response.Cookies.Append(PackageLevelCookie, current.PackageLevel.Value.ToString(), options);
+        }
+    }
     public void SignIn(AuthResponseDto response)
     {
         var http = accessor.HttpContext;

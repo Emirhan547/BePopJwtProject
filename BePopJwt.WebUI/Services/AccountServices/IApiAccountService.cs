@@ -7,5 +7,6 @@ namespace BePopJwt.WebUI.Services.AccountServices
     {
         Task<(bool IsSuccess, UserProfileDto? Profile, string? Error)> GetProfileAsync(string jwtToken);
         Task<(bool IsSuccess, AuthResponseDto? Response, string? Error)> ChangePackageAsync(string jwtToken, int packageId);
+        Task<(bool IsSuccess, UserProfileDto? Profile, string? Error)> UpdateProfileAsync(string jwtToken, UpdateProfileRequestDto request);
     }
 }

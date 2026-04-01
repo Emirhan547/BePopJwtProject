@@ -6,6 +6,7 @@
     Layout = "~/Views/Shared/_UILayout.cshtml";
     var session = ViewBag.Session as UserSessionViewModel ?? new();
 }
+
 <div id="main" class="layout-row flex">
     <div id="content" class="flex ">
         <div class="page-content page-container" id="page-content">
@@ -15,38 +16,54 @@
                         <h1 class="display-3 font-weight-bold text-white">Weekly Top Charts</h1>
                         @if (session.IsAuthenticated)
                         {
-                            <span class="badge badge-pill badge-primary">Paketin: @session.PackageName (@session.PackageLevel)</span>
+                            <span class="badge badge-pill badge-primary">
+                                Paketin: @session.PackageName (@session.PackageLevel)
+                            </span>
                         }
                     </div>
                 </div>
+
                 <div class="mt-4">
                     @for (var i = 0; i < Model.Count; i++)
                     {
                         var song = Model[i];
                         var isAllowed = !session.IsAuthenticated || session.PackageLevel is null || song.Level >= session.PackageLevel;
+
                         <div class="d-flex align-items-center py-2 b-b">
                             <div class="w-32 text-muted">#@(i + 1)</div>
-                            <img src="@(string.IsNullOrWhiteSpace(song.CoverUrl) ? "/Bepop/assets/img/b1.jpg" : song.CoverUrl)" width="42" height="42" class="rounded" />
+
+                            <img src="@(string.IsNullOrWhiteSpace(song.CoverUrl) ? "/Bepop/assets/img/b1.jpg" : song.CoverUrl)"
+                                 width="42" height="42" class="rounded" />
+
                             <div class="px-3 flex">
                                 <div class="text-white">@song.Name</div>
                                 <small class="text-muted">@(song.Album?.Name ?? "-")</small>
                             </div>
+
                             <span class="badge badge-secondary mr-2">Şarkı @song.Level</span>
+
                             @if (session.IsAuthenticated)
                             {
-                                <span class="badge @(isAllowed ? "badge-success" : "badge-danger")">@(isAllowed ? "Erişim Var" : "Yükselt")</span>
+                                <span class="badge @(isAllowed ? "badge-success" : "badge-danger")">
+                                    @(isAllowed ? "Erişim Var" : "Yükselt")
+                                </span>
+
                                 @if (isAllowed)
                                 {
-                                    <button class="btn btn-sm btn-primary ml-2 chart-play-btn" data-source="@song.FilePath">Play</button>
+                                    <button class="btn btn-sm btn-primary ml-2 chart-play-btn"
+                                            data-song-id="@song.Id">
+                                        Play
+                                    </button>
                                 }
                                 else
                                 {
-                                    <button class="btn btn-sm btn-outline-warning ml-2 restricted-song-btn">Paketi Yükselt</button>
+                                    <button class="btn btn-sm btn-outline-warning ml-2 restricted-song-btn" data-packages-url="@Url.Action("Packages", "Default")">Paketi Yükselt</button>
                                 }
                             }
                         </div>
                     }
                 </div>
+
                 <div class="mt-4 p-3 b-a rounded">
                     <h6 class="text-highlight">Preview Player</h6>
                     <audio id="chart-player" controls class="w-100"></audio>
@@ -56,34 +73,3 @@
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script>
-    (function () {
-    const player = document.getElementById('chart-player');
-    document.querySelectorAll('.chart-play-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-    const source = btn.dataset.source;
-    if (!source) return;
-    player.src = source;
-    player.play();
-    });
-    });
-
-    document.querySelectorAll('.restricted-song-btn').forEach(btn => {
-    btn.addEventListener('click', async () => {
-    const result = await Swal.fire({
-    icon: 'warning',
-    title: 'Bu şarkıya erişim yok',
-    text: 'Bu müziği dinlemek için ilgili pakete geçiş yapmalısınız.',
-    confirmButtonText: 'Paketlere Git',
-    showCancelButton: true,
-    cancelButtonText: 'Vazgeç'
-    });
-
-    if (result.isConfirmed) {
-    window.location.href = '@Url.Action("Packages", "Default")';
-    }
-    });
-    });
-    })();
-</script>

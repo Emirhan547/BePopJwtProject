@@ -39,6 +39,36 @@ namespace BePopJwt.Business.Services.PlayerServices
 
             return BaseResult<List<ResultSongWithAlbumDto>>.Success(accessibleSongs.Adapt<List<ResultSongWithAlbumDto>>());
         }
+        public async Task<BaseResult<string>> GetSongSourceAsync(int userId, int songId)
+        {
+            var user = await userManager.Users
+                .Include(x => x.Package)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.Id == userId);
+
+            if (user is null)
+            {
+                return BaseResult<string>.Fail("Kullanıcı bulunamadı.");
+            }
+
+            var song = await songRepository.GetByIdAsync(songId);
+            if (song is null)
+            {
+                return BaseResult<string>.Fail("Şarkı bulunamadı.");
+            }
+
+            if ((int)song.Level < user.Package.Level)
+            {
+                return BaseResult<string>.Fail("Paketiniz bu şarkıyı dinlemek için yeterli değil.");
+            }
+
+            if (string.IsNullOrWhiteSpace(song.FilePath))
+            {
+                return BaseResult<string>.Fail("Şarkı dosya yolu bulunamadı.");
+            }
+
+            return BaseResult<string>.Success(song.FilePath);
+        }
         public async Task<BaseResult<List<ResultSongWithAlbumDto>>> GetRecommendationsAsync(int userId, int take = 6)
         {
             var user = await userManager.Users

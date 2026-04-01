@@ -1,0 +1,94 @@
+﻿@using BePopJwt.WebUI.Dtos.AuthDtos
+@using BePopJwt.WebUI.Dtos.SongDtos
+@using BePopJwt.WebUI.Dtos.ArtistDtos
+@model ArtistWithAlbumsDto
+@{
+    ViewData["Title"] = "Artist Detail";
+    Layout = "~/Views/Shared/_UILayout.cshtml";
+    var session = ViewBag.Session as UserSessionViewModel ?? new();
+    var songs = ViewBag.ArtistSongs as List<SongWithAlbumDto> ?? [];
+}
+<div id="main" class="layout-row flex">
+    <div id="content" class="flex ">
+        <div class="page-content page-container" id="page-content">
+            <div class="padding sr">
+                <div class="page-hero">
+                    <div class="media bg-media"><div class="media-content" style="background-image:url(@(string.IsNullOrWhiteSpace(Model.CoverUrl) ? "/Bepop/assets/img/c3.jpg" : Model.CoverUrl))"></div></div>
+                    <div class="pos-rlt d-flex align-items-end">
+                        <img src="@(string.IsNullOrWhiteSpace(Model.ImageUrl) ? "/Bepop/assets/img/a4.jpg" : Model.ImageUrl)" class="rounded-circle b-a" width="96" height="96" />
+                        <div class="ml-3">
+                            <h1 class="display-4 text-white">@Model.Name</h1>
+                            <p class="text-muted">@Model.Bio</p>
+                        </div>
+                    </div>
+                </div>
+
+                <h5 class="mt-4 text-highlight">Albümler</h5>
+                <div class="row row-sm">
+                    @foreach (var album in Model.Albums)
+                    {
+                        <div class="col-12 col-md-4 py-2">
+                            <div class="d-flex align-items-center b-a rounded p-2">
+                                <img src="@(string.IsNullOrWhiteSpace(album.CoverUrl) ? "/Bepop/assets/img/b3.jpg" : album.CoverUrl)" width="54" height="54" class="rounded" />
+                                <div class="ml-2 text-white">@album.Name</div>
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                <h5 class="mt-4 text-highlight">Şarkılar</h5>
+                @if (!songs.Any())
+                {
+                    <div class="alert alert-info">Bu sanatçı için eşleşen şarkı bulunamadı.</div>
+                }
+                else
+                {
+                    @foreach (var song in songs)
+                    {
+                        var isAllowed = !session.IsAuthenticated || session.PackageLevel is null || song.Level >= session.PackageLevel;
+                        <div class="d-flex align-items-center py-2 b-b">
+                            <img src="@(string.IsNullOrWhiteSpace(song.CoverUrl) ? "/Bepop/assets/img/b6.jpg" : song.CoverUrl)" width="42" height="42" class="rounded" />
+                            <div class="px-3 flex">
+                                <div class="text-white">@song.Name</div>
+                                <small class="text-muted">@(song.Album?.Name ?? "-")</small>
+                            </div>
+                            <span class="badge badge-secondary mr-2">Şarkı @song.Level</span>
+                            <button class="btn btn-sm @(isAllowed ? "btn-primary artist-play-btn" : "btn-outline-warning restricted-song-btn")" data-song-id="@song.Id">
+                                @(isAllowed ? "Play" : "Paketi Yükselt")
+                            </button>
+                        </div>
+                    }
+                }
+
+                <div class="mt-4 p-3 b-a rounded">
+                    <h6 class="text-highlight">Artist Player</h6>
+                    <audio id="artist-player" controls class="w-100"></audio>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    (function () {
+        const player = document.getElementById('artist-player');
+
+        document.addEventListener('click', async function (e) {
+            const playButton = e.target.closest('.artist-play-btn');
+            if (playButton) {
+                const songId = Number(playButton.dataset.songId || 0);
+                if (!songId) return;
+                const sourceResponse = await fetch(`@Url.Action("SongSource", "Default")?songId=${songId}`);
+                const sourceData = await sourceResponse.json();
+                if (!sourceResponse.ok || !sourceData.ok || !sourceData.source) return;
+                player.src = sourceData.source;
+                player.play();
+                return;
+            }
+
+            const restricted = e.target.closest('.restricted-song-btn');
+            if (restricted) {
+                window.location.href = '@Url.Action("Packages", "Default")';
+            }
+        });
+    })();
+</script>

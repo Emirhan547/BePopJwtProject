@@ -2,14 +2,13 @@
 using BePopJwt.WebUI.Dtos.HistoryDtos;
 using BePopJwt.WebUI.Dtos.HomeDtos;
 using BePopJwt.WebUI.Dtos.SongDtos;
+using BePopJwt.WebUI.Dtos.UserDtos;
 using BePopJwt.WebUI.Services;
 using BePopJwt.WebUI.Services.AccountServices;
 using BePopJwt.WebUI.Services.CatalogServices;
 using BePopJwt.WebUI.Services.PlayerServices;
 using BePopJwt.WebUI.Services.UserSessionServices;
 using Microsoft.AspNetCore.Mvc;
-using Org.BouncyCastle.Asn1.Ocsp;
-using static Microsoft.CodeAnalysis.CSharp.SyntaxTokenParser;
 
 namespace BePopJwt.WebUI.Controllers;
 
@@ -27,7 +26,59 @@ public class DefaultController(IApiCatalogService catalogService, IApiPlayerServ
 
         return View(vm);
     }
+    public async Task<IActionResult> ArtistDetail(int id)
+    {
+        var artists = await catalogService.GetArtistsWithAlbumsAsync();
+        var artist = artists.FirstOrDefault(x => x.Id == id);
+        if (artist is null)
+        {
+            return RedirectToAction(nameof(Artists));
+        }
 
+        var songs = await catalogService.GetSongsWithAlbumAsync();
+        ViewBag.ArtistSongs = songs.Where(x => artist.Albums.Any(a => a.Id == (x.Album?.Id ?? 0))).ToList();
+        ViewBag.Session = userSessionService.GetCurrent();
+        return View(artist);
+    }
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Profile(UpdateProfileRequestDto request)
+    {
+        var session = userSessionService.GetCurrent();
+        if (!session.IsAuthenticated || string.IsNullOrWhiteSpace(session.Token))
+        {
+            return RedirectToAction("SignIn", "Auth");
+        }
+
+        var result = await accountService.UpdateProfileAsync(session.Token, request);
+        if (!result.IsSuccess || result.Profile is null)
+        {
+            ViewBag.Error = result.Error ?? "Profil güncellenemedi.";
+            return View(new UserProfileDto
+            {
+                UserName = request.UserName,
+                Email = request.Email,
+                DisplayName = request.DisplayName,
+                ImageUrl = request.ImageUrl
+            });
+        }
+
+        userSessionService.UpdateDisplayName(result.Profile.DisplayName);
+        ViewBag.Success = "Profilin başarıyla güncellendi.";
+        return View(result.Profile);
+    }
+    [HttpGet]
+    public async Task<IActionResult> SongSource(int songId)
+    {
+        var session = userSessionService.GetCurrent();
+        if (!session.IsAuthenticated || string.IsNullOrWhiteSpace(session.Token))
+        {
+            return Unauthorized(new { message = "Login required." });
+        }
+
+        var result = await playerService.GetSongSourceAsync(session.Token, songId);
+        return result.IsSuccess ? Ok(new { ok = true, source = result.Source }) : BadRequest(new { ok = false, message = result.Error });
+    }
     public async Task<IActionResult> Artists()
     {
         var artists = await catalogService.GetArtistsWithAlbumsAsync();

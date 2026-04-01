@@ -41,5 +41,23 @@ namespace BePopJwt.WebUI.Services.AccountServices
                 ? (true, result.Data, null)
                 : (false, null, result.Errors?.FirstOrDefault()?.ErrorMessage ?? "Package change failed.");
         }
+        public async Task<(bool IsSuccess, UserProfileDto? Profile, string? Error)> UpdateProfileAsync(string jwtToken, UpdateProfileRequestDto requestDto)
+        {
+            using var request = new HttpRequestMessage(HttpMethod.Put, "api/auths/profile");
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", jwtToken);
+            request.Content = JsonContent.Create(requestDto);
+
+            var response = await client.SendAsync(request);
+            var result = await response.Content.ReadFromJsonAsync<BaseResultDto<UserProfileDto>>();
+
+            if (result is null)
+            {
+                return (false, null, "Profile update response could not be parsed.");
+            }
+
+            return result.IsSuccess
+                ? (true, result.Data, null)
+                : (false, null, result.Errors?.FirstOrDefault()?.ErrorMessage ?? "Profile could not be updated.");
+        }
     }
 }

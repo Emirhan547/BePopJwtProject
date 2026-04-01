@@ -36,6 +36,20 @@ namespace BePopJwt.WebUI.Services.PlayerServices
                 ? (true, result.Data ?? [], null)
                 : (false, [], result.Errors?.FirstOrDefault()?.ErrorMessage ?? "Recommendations could not be loaded.");
         }
+        public async Task<(bool IsSuccess, string? Source, string? Error)> GetSongSourceAsync(string jwtToken, int songId)
+        {
+            var response = await SendWithAuthAsync(jwtToken, HttpMethod.Get, $"api/player/song-source/{songId}");
+            var result = await response.Content.ReadFromJsonAsync<BaseResultDto<string>>();
+
+            if (result is null)
+            {
+                return (false, null, "Song source response could not be parsed.");
+            }
+
+            return result.IsSuccess
+                ? (true, result.Data, null)
+                : (false, null, result.Errors?.FirstOrDefault()?.ErrorMessage ?? "Şarkı kaynağına erişilemedi.");
+        }
         public async Task<(bool IsSuccess, List<UserHistoryDto> History, string? Error)> GetHistoryAsync(string jwtToken)
         {
             var response = await SendWithAuthAsync(jwtToken, HttpMethod.Get, "api/player/history");

@@ -143,6 +143,67 @@ namespace BePopJwt.Business.Services.AuthServices
                 PackageLevel = user.Package.Level
             });
         }
+        public async Task<BaseResult<UserProfileDto>> UpdateProfileAsync(int userId, UpdateProfileDto dto)
+        {
+            var user = await userManager.Users
+                .Include(x => x.Package)
+                .FirstOrDefaultAsync(x => x.Id == userId);
+
+            if (user is null)
+            {
+                return BaseResult<UserProfileDto>.Fail("Kullanıcı bulunamadı.");
+            }
+
+            var userName = dto.UserName.Trim();
+            var email = dto.Email.Trim();
+            var displayName = dto.DisplayName.Trim();
+
+            if (string.IsNullOrWhiteSpace(userName) || string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(displayName))
+            {
+                return BaseResult<UserProfileDto>.Fail("Kullanıcı adı, e-posta ve görünen ad zorunludur.");
+            }
+
+            var existingWithUserName = await userManager.Users
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.UserName == userName && x.Id != userId);
+
+            if (existingWithUserName is not null)
+            {
+                return BaseResult<UserProfileDto>.Fail("Bu kullanıcı adı zaten kullanılıyor.");
+            }
+
+            var existingWithEmail = await userManager.Users
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.Email == email && x.Id != userId);
+
+            if (existingWithEmail is not null)
+            {
+                return BaseResult<UserProfileDto>.Fail("Bu e-posta adresi zaten kullanılıyor.");
+            }
+
+            user.UserName = userName;
+            user.Email = email;
+            user.DisplayName = displayName;
+            user.ImageUrl = string.IsNullOrWhiteSpace(dto.ImageUrl) ? null : dto.ImageUrl.Trim();
+
+            var result = await userManager.UpdateAsync(user);
+            if (!result.Succeeded)
+            {
+                return BaseResult<UserProfileDto>.Fail(result.Errors);
+            }
+
+            return BaseResult<UserProfileDto>.Success(new UserProfileDto
+            {
+                UserId = user.Id,
+                UserName = user.UserName ?? string.Empty,
+                Email = user.Email ?? string.Empty,
+                DisplayName = user.DisplayName,
+                ImageUrl = user.ImageUrl,
+                PackageId = user.PackageId,
+                PackageName = user.Package.Name,
+                PackageLevel = user.Package.Level
+            });
+        }
         private AuthResponseDto GenerateToken(AppUser user, string packageName, int packageLevel)
        
     {

@@ -74,7 +74,18 @@ namespace BePopJwt.API.Controllers
             var result = await playerService.GetMyHistoryAsync(userId.Value);
             return result.IsSuccess ? Ok(result) : BadRequest(result);
         }
+        [HttpGet("song-source/{songId:int}")]
+        public async Task<IActionResult> GetSongSource(int songId)
+        {
+            var userId = GetUserId();
+            if (userId is null)
+            {
+                return Unauthorized();
+            }
 
+            var result = await playerService.GetSongSourceAsync(userId.Value, songId);
+            return result.IsSuccess ? Ok(result) : BadRequest(result);
+        }
         private int? GetUserId()
         {
             var value = User.FindFirstValue(ClaimTypes.NameIdentifier);

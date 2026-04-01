@@ -1,4 +1,5 @@
 ﻿using BePopJwt.Business.Dtos.AuthDtos;
+using BePopJwt.Business.Dtos.UserDtos;
 using BePopJwt.Business.Services.AuthServices;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -38,7 +39,19 @@ namespace BePopJwt.API.Controllers
             var result = await _authService.GetProfileAsync(userId.Value);
             return result.IsSuccess ? Ok(result) : BadRequest(result);
         }
+        [Authorize]
+        [HttpPut("profile")]
+        public async Task<IActionResult> UpdateProfile(UpdateProfileDto dto)
+        {
+            var userId = GetUserId();
+            if (userId is null)
+            {
+                return Unauthorized();
+            }
 
+            var result = await _authService.UpdateProfileAsync(userId.Value, dto);
+            return result.IsSuccess ? Ok(result) : BadRequest(result);
+        }
         [Authorize]
         [HttpPost("change-package")]
         public async Task<IActionResult> ChangePackage(ChangePackageDto dto)

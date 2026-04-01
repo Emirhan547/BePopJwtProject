@@ -14,5 +14,6 @@ namespace BePopJwt.Business.Services.AuthServices
         Task<BaseResult<AuthResponseDto>> LoginAsync(LoginDto dto);
         Task<BaseResult<AuthResponseDto>> ChangePackageAsync(int userId, int packageId);
         Task<BaseResult<UserProfileDto>> GetProfileAsync(int userId);
+        Task<BaseResult<UserProfileDto>> UpdateProfileAsync(int userId, UpdateProfileDto dto);
     }
 }

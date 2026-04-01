@@ -15,5 +15,6 @@ namespace BePopJwt.Business.Services.PlayerServices
         Task<BaseResult<ResultUserSongHistoryDto>> PlaySongAsync(int userId, PlaySongRequestDto request);
         Task<BaseResult<List<ResultUserSongHistoryWithDetailsDto>>> GetMyHistoryAsync(int userId);
         Task<BaseResult<ResultPlayerStateDto>> GetPlayerStateAsync(int userId);
+        Task<BaseResult<string>> GetSongSourceAsync(int userId, int songId);
     }
 }
