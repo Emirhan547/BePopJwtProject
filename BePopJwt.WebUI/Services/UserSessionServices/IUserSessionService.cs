@@ -6,6 +6,7 @@ namespace BePopJwt.WebUI.Services.UserSessionServices
     {
         UserSessionViewModel GetCurrent();
         void SignIn(AuthResponseDto response);
+        
         void SignOut();
     }
 }

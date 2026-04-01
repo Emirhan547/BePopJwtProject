@@ -12,7 +12,7 @@ namespace BePopJwt.Business.Dtos.AuthDtos
         public string DisplayName { get; set; } 
         public string PackageName { get; set; } 
         public int PackageLevel { get; set; }
-        public string Token { get; set; } 
+        public string Token { get; set; }
         public DateTime ExpiresAtUtc { get; set; }
     }
 }

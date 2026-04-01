@@ -2,6 +2,7 @@
 using BePopJwt.Business.Dtos.AuthDtos;
 using System;
 using System.Collections.Generic;
+using System.Security.Claims;
 using System.Text;
 
 namespace BePopJwt.Business.Services.AuthServices

@@ -21,5 +21,6 @@ namespace BePopJwt.DataAccess.Context
         public DbSet<UserSongHistory> UserSongHistories { get; set; }
         public DbSet<Banner> Banners { get; set; }
         public DbSet<Player> Players { get; set; }
+        
     }
 }

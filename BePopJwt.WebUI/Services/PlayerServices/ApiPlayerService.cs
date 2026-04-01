@@ -2,6 +2,7 @@
 using BePopJwt.WebUI.Dtos.HistoryDtos;
 using BePopJwt.WebUI.Dtos.SongDtos;
 using System.Net.Http.Headers;
+using static Microsoft.CodeAnalysis.CSharp.SyntaxTokenParser;
 
 namespace BePopJwt.WebUI.Services.PlayerServices
 {
@@ -10,7 +11,7 @@ namespace BePopJwt.WebUI.Services.PlayerServices
         public async Task<(bool IsSuccess, List<SongWithAlbumDto> Songs, string? Error)> GetAccessibleSongsAsync(string jwtToken)
         {
             var response = await SendWithAuthAsync(jwtToken, HttpMethod.Get, "api/player/songs");
-            var result = await response.Content.ReadFromJsonAsync<BaseResultDto<List<SongWithAlbumDto>>>();
+             var result = await response.Content.ReadFromJsonAsync<BaseResultDto<List<SongWithAlbumDto>>>();
 
             if (result is null)
             {
@@ -21,7 +22,20 @@ namespace BePopJwt.WebUI.Services.PlayerServices
                 ? (true, result.Data ?? [], null)
                 : (false, [], result.Errors?.FirstOrDefault()?.ErrorMessage ?? "Authorized song list could not be loaded.");
         }
+        public async Task<(bool IsSuccess, List<SongWithAlbumDto> Songs, string? Error)> GetRecommendationsAsync(string jwtToken, int take = 6)
+        {
+            var response = await SendWithAuthAsync(jwtToken, HttpMethod.Get, $"api/player/recommendations?take={Math.Clamp(take, 1, 20)}");
+            var result = await response.Content.ReadFromJsonAsync<BaseResultDto<List<SongWithAlbumDto>>>();
 
+            if (result is null)
+            {
+                return (false, [], "Recommendations response could not be parsed.");
+            }
+
+            return result.IsSuccess
+                ? (true, result.Data ?? [], null)
+                : (false, [], result.Errors?.FirstOrDefault()?.ErrorMessage ?? "Recommendations could not be loaded.");
+        }
         public async Task<(bool IsSuccess, List<UserHistoryDto> History, string? Error)> GetHistoryAsync(string jwtToken)
         {
             var response = await SendWithAuthAsync(jwtToken, HttpMethod.Get, "api/player/history");
@@ -44,6 +58,7 @@ namespace BePopJwt.WebUI.Services.PlayerServices
                 SongId = songId,
                 PlayDuration = playDuration
             });
+        
 
             var result = await response.Content.ReadFromJsonAsync<BaseResultDto<object>>();
             if (result is null)
@@ -56,16 +71,17 @@ namespace BePopJwt.WebUI.Services.PlayerServices
                 : (false, result.Errors?.FirstOrDefault()?.ErrorMessage ?? "Şarkı dinleme kaydı atılamadı.");
         }
 
-        private async Task<HttpResponseMessage> SendWithAuthAsync(string jwtToken, HttpMethod method, string url, object? payload = null)
-        {
-            using var request = new HttpRequestMessage(method, url);
-            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", jwtToken);
-            if (payload is not null)
-            {
-                request.Content = JsonContent.Create(payload);
-            }
+private async Task<HttpResponseMessage> SendWithAuthAsync(string jwtToken, HttpMethod method, string url, object? payload = null)
+{
+    using var request = new HttpRequestMessage(method, url);
+    request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", jwtToken);
+    
+    if (payload is not null)
+    {
+        request.Content = JsonContent.Create(payload);
+    }
 
-            return await client.SendAsync(request);
-        }
+    return await client.SendAsync(request);
+}
     }
 }

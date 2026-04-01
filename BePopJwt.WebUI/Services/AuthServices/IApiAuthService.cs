@@ -6,5 +6,6 @@ namespace BePopJwt.WebUI.Services.AuthServices
     {
         Task<(bool IsSuccess, AuthResponseDto? Response, string? Error)> LoginAsync(LoginRequestDto request);
         Task<(bool IsSuccess, AuthResponseDto? Response, string? Error)> RegisterAsync(RegisterRequestDto request);
+       
     }
 }

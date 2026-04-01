@@ -10,11 +10,9 @@ namespace BePopJwt.Business.Validators.SongValidators
     {
         public UpdateSongValidator()
         {
-            RuleFor(x => x.Histories).NotEmpty().WithMessage("Title is required.");
             RuleFor(x => x.FilePath).NotEmpty().WithMessage("FilePath is required.");
             RuleFor(x => x.Duration).NotEmpty().WithMessage("Duration is required.");
             RuleFor(x => x.CoverUrl).NotEmpty().WithMessage("CoverUrl is required.");
-            RuleFor(x => x.Level).NotEmpty().WithMessage("Level is required.");
         }
     }
 }

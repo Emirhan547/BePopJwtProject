@@ -39,7 +39,79 @@ namespace BePopJwt.Business.Services.PlayerServices
 
             return BaseResult<List<ResultSongWithAlbumDto>>.Success(accessibleSongs.Adapt<List<ResultSongWithAlbumDto>>());
         }
+        public async Task<BaseResult<List<ResultSongWithAlbumDto>>> GetRecommendationsAsync(int userId, int take = 6)
+        {
+            var user = await userManager.Users
+                .Include(x => x.Package)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.Id == userId);
 
+            if (user is null)
+            {
+                return BaseResult<List<ResultSongWithAlbumDto>>.Fail("Kullanıcı bulunamadı.");
+            }
+
+            var accessibleSongs = (await songRepository.GetSongsWithAlbumAsync())
+                .Where(x => (int)x.Level >= user.Package.Level)
+                .ToList();
+
+            if (accessibleSongs.Count == 0)
+            {
+                return BaseResult<List<ResultSongWithAlbumDto>>.Success([]);
+            }
+
+            var allHistories = await userSongHistoryRepository.GetHistoriesWithSongAndUserAsync();
+            var mySongIds = allHistories
+                .Where(x => x.UserId == userId)
+                .Select(x => x.SongId)
+                .Distinct()
+                .ToHashSet();
+
+            if (mySongIds.Count == 0)
+            {
+                var coldStart = accessibleSongs
+                    .OrderBy(x => x.Level)
+                    .ThenBy(x => x.Name)
+                    .Take(take)
+                    .ToList();
+
+                return BaseResult<List<ResultSongWithAlbumDto>>.Success(coldStart.Adapt<List<ResultSongWithAlbumDto>>());
+            }
+
+            var similarUserIds = allHistories
+                .Where(x => mySongIds.Contains(x.SongId) && x.UserId != userId)
+                .Select(x => x.UserId)
+                .Distinct()
+                .ToHashSet();
+
+            var recommendationIds = allHistories
+                .Where(x => similarUserIds.Contains(x.UserId) && !mySongIds.Contains(x.SongId))
+                .GroupBy(x => x.SongId)
+                .OrderByDescending(g => g.Count())
+                .ThenByDescending(g => g.Max(x => x.PlayedAt))
+                .Select(g => g.Key)
+                .ToList();
+
+            var recommendationSongs = accessibleSongs
+                .Where(x => recommendationIds.Contains(x.Id))
+                .OrderBy(x => recommendationIds.IndexOf(x.Id))
+                .Take(take)
+                .ToList();
+
+            if (recommendationSongs.Count < take)
+            {
+                var fallback = accessibleSongs
+                    .Where(x => !mySongIds.Contains(x.Id) && recommendationSongs.All(r => r.Id != x.Id))
+                    .OrderBy(x => x.Level)
+                    .ThenBy(x => x.Name)
+                    .Take(take - recommendationSongs.Count)
+                    .ToList();
+
+                recommendationSongs.AddRange(fallback);
+            }
+
+            return BaseResult<List<ResultSongWithAlbumDto>>.Success(recommendationSongs.Adapt<List<ResultSongWithAlbumDto>>());
+        }
         public async Task<BaseResult<List<ResultUserSongHistoryWithDetailsDto>>> GetMyHistoryAsync(int userId)
         {
             var values = await userSongHistoryRepository.GetHistoriesWithSongAndUserAsync(userId);

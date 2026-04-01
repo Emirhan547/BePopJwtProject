@@ -18,10 +18,7 @@ namespace BePopJwt.Business.Dtos.SongDtos
         public string CoverUrl { get; set; }
 
         public PackageLevel Level { get; set; }
-
         public int AlbumId { get; set; }
-        public Album Album { get; set; }
 
-        public List<UserSongHistory> Histories { get; set; }
     }
 }

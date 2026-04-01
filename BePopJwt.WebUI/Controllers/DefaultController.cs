@@ -56,15 +56,14 @@ public class DefaultController(IApiCatalogService catalogService, IApiPlayerServ
         var songsResult = await playerService.GetAccessibleSongsAsync(session.Token);
         var historyResult = await playerService.GetHistoryAsync(session.Token);
 
-        var recommendations = BuildRecommendations(songsResult.Songs, historyResult.History);
-
+        var recommendationsResult = await playerService.GetRecommendationsAsync(session.Token, 8);
         return View(new DiscoverViewModel
         {
             Session = session,
             AccessibleSongs = songsResult.Songs,
             History = historyResult.History,
-            RecommendedSongs = recommendations,
-            ErrorMessage = songsResult.Error ?? historyResult.Error
+            RecommendedSongs = recommendationsResult.Songs,
+            ErrorMessage = songsResult.Error ?? historyResult.Error ?? recommendationsResult.Error
         });
     }
 
@@ -92,31 +91,8 @@ public class DefaultController(IApiCatalogService catalogService, IApiPlayerServ
         }
 
         var result = await playerService.PlayAsync(session.Token, request.SongId, request.PlayDuration);
-        return result.IsSuccess? Ok(new { ok = true }) : BadRequest(new { ok = false, message = result.Error });
+        return result.IsSuccess ? Ok(new { ok = true }) : BadRequest(new { ok = false, message = result.Error });
     }
 
-private static List<SongWithAlbumDto> BuildRecommendations(List<SongWithAlbumDto> accessibleSongs, List<UserHistoryDto> history)
-{
-    if (accessibleSongs.Count == 0)
-    {
-        return [];
-    }
-
-    var listenedSongIds = history.Select(x => x.SongId).ToHashSet();
-    var topAlbumId = history
-        .Where(x => x.Song is not null)
-        .GroupBy(x => x.Song.AlbumId)
-        .OrderByDescending(g => g.Count())
-        .Select(g => g.Key)
-        .FirstOrDefault();
-
-    var recommended = accessibleSongs
-        .Where(x => !listenedSongIds.Contains(x.Id))
-        .OrderByDescending(x => x.Album?.Id == topAlbumId)
-        .ThenBy(x => x.Level)
-        .Take(6)
-        .ToList();
-
-    return recommended;
-}
+   
 }

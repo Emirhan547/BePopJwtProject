@@ -24,7 +24,18 @@ namespace BePopJwt.API.Controllers
             return result.IsSuccess ? Ok(result) : BadRequest(result);
         }
 
+        [HttpGet("recommendations")]
+        public async Task<IActionResult> GetRecommendations([FromQuery] int take = 6)
+        {
+            var userId = GetUserId();
+            if (userId is null)
+            {
+                return Unauthorized();
+            }
 
+            var result = await playerService.GetRecommendationsAsync(userId.Value, Math.Clamp(take, 1, 20));
+            return result.IsSuccess ? Ok(result) : BadRequest(result);
+        }
         [HttpGet("state")]
         public async Task<IActionResult> GetState()
         {
@@ -50,7 +61,7 @@ namespace BePopJwt.API.Controllers
             var result = await playerService.PlaySongAsync(userId.Value, dto);
             return result.IsSuccess ? Ok(result) : BadRequest(result);
         }
-
+        
         [HttpGet("history")]
         public async Task<IActionResult> GetHistory()
         {

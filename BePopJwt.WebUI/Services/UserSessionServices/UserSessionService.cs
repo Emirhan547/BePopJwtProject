@@ -1,9 +1,10 @@
 ﻿using BePopJwt.WebUI.Const;
 using BePopJwt.WebUI.Dtos.AuthDtos;
 using BePopJwt.WebUI.Services.UserSessionServices;
-using Microsoft.AspNetCore.Mvc;
+using NuGet.Common;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using static System.Net.WebRequestMethods;
 
 namespace BePopJwt.WebUI.Services;
 
@@ -12,6 +13,7 @@ public sealed class UserSessionService(IHttpContextAccessor accessor) : IUserSes
     private const string PackageNameCookie = "bepop.package.name";
     private const string PackageLevelCookie = "bepop.package.level";
     private const string UserNameCookie = "bepop.username";
+    
 
     public UserSessionViewModel GetCurrent()
     {
@@ -33,6 +35,7 @@ public sealed class UserSessionService(IHttpContextAccessor accessor) : IUserSes
             Token = token,
             UserName = http.Request.Cookies[UserNameCookie],
             PackageName = http.Request.Cookies[PackageNameCookie]
+            
         };
 
         if (int.TryParse(http.Request.Cookies[PackageLevelCookie], out var level))
@@ -41,11 +44,14 @@ public sealed class UserSessionService(IHttpContextAccessor accessor) : IUserSes
         }
 
         if (model.PackageLevel is null || string.IsNullOrWhiteSpace(model.PackageName) || string.IsNullOrWhiteSpace(model.UserName))
+            
         {
             FillFromToken(model, token);
+            
         }
 
         return model;
+        
     }
 
     public void SignIn(AuthResponseDto response)
@@ -98,5 +104,7 @@ public sealed class UserSessionService(IHttpContextAccessor accessor) : IUserSes
                 model.PackageLevel = parsed;
             }
         }
+
+       
     }
 }
