@@ -1,0 +1,28 @@
+﻿@using BePopJwt.WebUI.Dtos.HomeDtos
+@model DiscoverViewModel
+@{
+    ViewData["Title"] = "Discover";
+    Layout = "~/Views/Shared/_UILayout.cshtml";
+}
+<div id="main" class="layout-row flex">
+    <div id="content" class="flex">
+        <div class="page-content page-container p-5">
+            <h2 class="text-white mb-4">Paketine Uygun Şarkılar</h2>
+            @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+            {
+                <div class="alert alert-warning">@Model.ErrorMessage</div>
+            }
+            <div class="row">
+                @foreach (var song in Model.AccessibleSongs)
+                {
+                    <div class="col-md-4 mb-3">
+                        <div class="p-3 b-a rounded h-100">
+                            <div class="text-white">@song.Name</div>
+                            <div class="text-muted">@(song.Album?.Name ?? "Albüm yok")</div>
+                            <small class="text-muted">Duration: @song.Duration sn</small>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>    </div>
+    </div>
