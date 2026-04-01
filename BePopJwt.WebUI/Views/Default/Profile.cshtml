@@ -1,0 +1,29 @@
+﻿@model BePopJwt.WebUI.Dtos.UserDtos.UserProfileDto
+@{
+    ViewData["Title"] = "Profil";
+    Layout = "~/Views/Shared/_UILayout.cshtml";
+}
+<div id="main" class="layout-row flex">
+    <div id="content" class="flex ">
+        <div class="page-content page-container" id="page-content">
+            <div class="padding sr">
+                <h2 class="text-white">Profil</h2>
+
+                @if (ViewBag.Error != null)
+                {
+                    <div class="alert alert-danger">@ViewBag.Error</div>
+                }
+
+                <div class="d-flex align-items-center b-a rounded p-3 mt-3">
+                    <img src="@(string.IsNullOrWhiteSpace(Model.ImageUrl) ? "/Bepop/assets/img/a0.jpg" : Model.ImageUrl)" width="96" height="96" class="rounded-circle" />
+                    <div class="ml-3">
+                        <h4 class="text-white mb-1">@Model.DisplayName</h4>
+                        <div class="text-muted">@@@Model.UserName</div>
+                        <div class="text-muted">@Model.Email</div>
+                        <span class="badge badge-pill badge-primary mt-2">@Model.PackageName (L@Model.PackageLevel)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

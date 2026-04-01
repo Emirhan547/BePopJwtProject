@@ -1,7 +1,9 @@
 ﻿using BePopJwt.Business.Dtos.AuthDtos;
 using BePopJwt.Business.Services.AuthServices;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace BePopJwt.API.Controllers
 {
@@ -22,6 +24,39 @@ namespace BePopJwt.API.Controllers
             var result = await _authService.LoginAsync(dto);
            
             return result.IsSuccess ? Ok(result) : BadRequest(result);
+        }
+        [Authorize]
+        [HttpGet("profile")]
+        public async Task<IActionResult> Profile()
+        {
+            var userId = GetUserId();
+            if (userId is null)
+            {
+                return Unauthorized();
+            }
+
+            var result = await _authService.GetProfileAsync(userId.Value);
+            return result.IsSuccess ? Ok(result) : BadRequest(result);
+        }
+
+        [Authorize]
+        [HttpPost("change-package")]
+        public async Task<IActionResult> ChangePackage(ChangePackageDto dto)
+        {
+            var userId = GetUserId();
+            if (userId is null)
+            {
+                return Unauthorized();
+            }
+
+            var result = await _authService.ChangePackageAsync(userId.Value, dto.PackageId);
+            return result.IsSuccess ? Ok(result) : BadRequest(result);
+        }
+
+        private int? GetUserId()
+        {
+            var value = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            return int.TryParse(value, out var userId) ? userId : null;
         }
     }
 }

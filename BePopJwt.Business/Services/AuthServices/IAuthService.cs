@@ -1,5 +1,6 @@
 ﻿using BePopJwt.Business.Base;
 using BePopJwt.Business.Dtos.AuthDtos;
+using BePopJwt.Business.Dtos.UserDtos;
 using System;
 using System.Collections.Generic;
 using System.Security.Claims;
@@ -11,5 +12,7 @@ namespace BePopJwt.Business.Services.AuthServices
     {
         Task<BaseResult<AuthResponseDto>> RegisterAsync(RegisterDto dto);
         Task<BaseResult<AuthResponseDto>> LoginAsync(LoginDto dto);
+        Task<BaseResult<AuthResponseDto>> ChangePackageAsync(int userId, int packageId);
+        Task<BaseResult<UserProfileDto>> GetProfileAsync(int userId);
     }
 }

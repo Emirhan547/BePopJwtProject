@@ -1,5 +1,6 @@
 ﻿using BePopJwt.Business.Base;
 using BePopJwt.Business.Dtos.AuthDtos;
+using BePopJwt.Business.Dtos.UserDtos;
 using BePopJwt.Business.Validators.AuthValidators;
 using BePopJwt.DataAccess.Context;
 using BePopJwt.Entity.Entities;
@@ -90,8 +91,59 @@ namespace BePopJwt.Business.Services.AuthServices
        
         return BaseResult<AuthResponseDto>.Success(response);
     }
+        public async Task<BaseResult<AuthResponseDto>> ChangePackageAsync(int userId, int packageId)
+        {
+            var user = await userManager.Users
+                .Include(x => x.Package)
+                .FirstOrDefaultAsync(x => x.Id == userId);
+            if (user is null)
+            {
+                return BaseResult<AuthResponseDto>.Fail("Kullanıcı bulunamadı.");
+            }
 
-    private AuthResponseDto GenerateToken(AppUser user, string packageName, int packageLevel)
+            var package = await context.Packages
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.Id == packageId);
+            if (package is null)
+            {
+                return BaseResult<AuthResponseDto>.Fail("Geçersiz paket seçimi.");
+            }
+
+            user.PackageId = packageId;
+            var updateResult = await userManager.UpdateAsync(user);
+            if (!updateResult.Succeeded)
+            {
+                return BaseResult<AuthResponseDto>.Fail(updateResult.Errors);
+            }
+
+            var response = GenerateToken(user, package.Name, package.Level);
+            return BaseResult<AuthResponseDto>.Success(response);
+        }
+
+        public async Task<BaseResult<UserProfileDto>> GetProfileAsync(int userId)
+        {
+            var user = await userManager.Users
+                .Include(x => x.Package)
+                .FirstOrDefaultAsync(x => x.Id == userId);
+
+            if (user is null)
+            {
+                return BaseResult<UserProfileDto>.Fail("Kullanıcı bulunamadı.");
+            }
+
+            return BaseResult<UserProfileDto>.Success(new UserProfileDto
+            {
+                UserId = user.Id,
+                UserName = user.UserName ?? string.Empty,
+                Email = user.Email ?? string.Empty,
+                DisplayName = user.DisplayName,
+                ImageUrl = user.ImageUrl,
+                PackageId = user.PackageId,
+                PackageName = user.Package.Name,
+                PackageLevel = user.Package.Level
+            });
+        }
+        private AuthResponseDto GenerateToken(AppUser user, string packageName, int packageLevel)
        
     {
         var jwtSection = configuration.GetSection("Jwt");

@@ -1,7 +1,9 @@
-﻿using BePopJwt.WebUI.Dtos.HistoryDtos;
+﻿using BePopJwt.WebUI.Dtos.AccountDtos;
+using BePopJwt.WebUI.Dtos.HistoryDtos;
 using BePopJwt.WebUI.Dtos.HomeDtos;
 using BePopJwt.WebUI.Dtos.SongDtos;
 using BePopJwt.WebUI.Services;
+using BePopJwt.WebUI.Services.AccountServices;
 using BePopJwt.WebUI.Services.CatalogServices;
 using BePopJwt.WebUI.Services.PlayerServices;
 using BePopJwt.WebUI.Services.UserSessionServices;
@@ -11,7 +13,7 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxTokenParser;
 
 namespace BePopJwt.WebUI.Controllers;
 
-public class DefaultController(IApiCatalogService catalogService, IApiPlayerService playerService, IUserSessionService userSessionService) : Controller
+public class DefaultController(IApiCatalogService catalogService, IApiPlayerService playerService, IApiAccountService accountService, IUserSessionService userSessionService) : Controller
 {
     public async Task<IActionResult> Index()
     {
@@ -80,7 +82,63 @@ public class DefaultController(IApiCatalogService catalogService, IApiPlayerServ
         ViewBag.Error = result.Error;
         return View(result.History.OrderByDescending(x => x.PlayedAt).ToList());
     }
+    public async Task<IActionResult> Packages(string? success = null)
+    {
+        var session = userSessionService.GetCurrent();
+        if (!session.IsAuthenticated || string.IsNullOrWhiteSpace(session.Token))
+        {
+            return RedirectToAction("SignIn", "Auth");
+        }
 
+        return View(new PackageManagementViewModel
+        {
+            Session = session,
+            Packages = await catalogService.GetPackagesAsync(),
+            SuccessMessage = success
+        });
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> ChangePackage(int packageId)
+    {
+        var session = userSessionService.GetCurrent();
+        if (!session.IsAuthenticated || string.IsNullOrWhiteSpace(session.Token))
+        {
+            return RedirectToAction("SignIn", "Auth");
+        }
+
+        var result = await accountService.ChangePackageAsync(session.Token, packageId);
+        if (!result.IsSuccess || result.Response is null)
+        {
+            return View("Packages", new PackageManagementViewModel
+            {
+                Session = session,
+                Packages = await catalogService.GetPackagesAsync(),
+                ErrorMessage = result.Error ?? "Paket geçişi sırasında bir hata oluştu."
+            });
+        }
+
+        userSessionService.SignIn(result.Response);
+        return RedirectToAction(nameof(Packages), new { success = "Paketiniz başarıyla güncellendi." });
+    }
+
+    public async Task<IActionResult> Profile()
+    {
+        var session = userSessionService.GetCurrent();
+        if (!session.IsAuthenticated || string.IsNullOrWhiteSpace(session.Token))
+        {
+            return RedirectToAction("SignIn", "Auth");
+        }
+
+        var result = await accountService.GetProfileAsync(session.Token);
+        if (!result.IsSuccess || result.Profile is null)
+        {
+            ViewBag.Error = result.Error ?? "Profil bilgileri yüklenemedi.";
+            return View(new Dtos.UserDtos.UserProfileDto());
+        }
+
+        return View(result.Profile);
+    }
     [HttpPost]
     public async Task<IActionResult> Play([FromBody] PlaySongWebRequest request)
     {

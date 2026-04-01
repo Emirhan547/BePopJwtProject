@@ -1,0 +1,50 @@
+﻿@model BePopJwt.WebUI.Dtos.AccountDtos.PackageManagementViewModel
+@{
+    ViewData["Title"] = "Paketler";
+    Layout = "~/Views/Shared/_UILayout.cshtml";
+}
+<div id="main" class="layout-row flex">
+    <div id="content" class="flex ">
+        <div class="page-content page-container" id="page-content">
+            <div class="padding sr">
+                <h2 class="text-white">Paket Geçişi</h2>
+                <p class="text-muted">Bir üst veya alt pakete geçiş yapabilirsiniz.</p>
+
+                @if (!string.IsNullOrWhiteSpace(Model.SuccessMessage))
+                {
+                    <div class="alert alert-success">@Model.SuccessMessage</div>
+                }
+                @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+                {
+                    <div class="alert alert-danger">@Model.ErrorMessage</div>
+                }
+
+                <div class="row row-sm mt-3">
+                    @foreach (var package in Model.Packages.OrderBy(p => p.Level))
+                    {
+                        var isCurrent = package.Level == Model.Session.PackageLevel;
+                        <div class="col-md-4 py-2">
+                            <div class="p-3 b-a rounded @(isCurrent ? "border-primary" : string.Empty)">
+                                <h5 class="text-white">@package.Name</h5>
+                                <div class="text-muted">Seviye: @package.Level</div>
+                                <div class="text-muted mb-3">Fiyat: @package.Price.ToString("C")</div>
+
+                                @if (isCurrent)
+                                {
+                                    <span class="badge badge-primary">Mevcut Paket</span>
+                                }
+                                else
+                                {
+                                    <form asp-action="ChangePackage" asp-controller="Default" method="post">
+                                        <input type="hidden" name="packageId" value="@package.Id" />
+                                        <button type="submit" class="btn btn-sm btn-primary">Bu Pakete Geç</button>
+                                    </form>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
