@@ -31,7 +31,7 @@
                                 <div class="text-white">@song.Name</div>
                                 <small class="text-muted">@(song.Album?.Name ?? "-")</small>
                             </div>
-                            <span class="badge badge-secondary mr-2">Şarkı L@song.Level</span>
+                            <span class="badge badge-secondary mr-2">Şarkı @song.Level</span>
                             @if (session.IsAuthenticated)
                             {
                                 <span class="badge @(isAllowed ? "badge-success" : "badge-danger")">@(isAllowed ? "Erişim Var" : "Yükselt")</span>

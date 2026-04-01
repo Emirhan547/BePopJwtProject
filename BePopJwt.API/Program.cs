@@ -2,6 +2,7 @@ using BePopJwt.Business.Extensions;
 using BePopJwt.DataAccess.Context;
 using BePopJwt.DataAccess.Extensions;
 using BePopJwt.DataAccess.Interceptors;
+using BePopJwt.DataAccess.Seed;
 using BePopJwt.Entity.Entities;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -53,7 +54,11 @@ builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 
 var app = builder.Build();
-
+using (var scope = app.Services.CreateScope())
+{
+    var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    await AppDbSeeder.SeedAsync(context);
+}
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {

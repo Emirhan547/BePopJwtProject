@@ -16,7 +16,7 @@
                             <p class="text-muted col-md-8 px-0">Paket seviyene göre erişebileceğin şarkılar ve kişisel öneriler.</p>
                             @if (Model.Session.IsAuthenticated)
                             {
-                                <span class="badge badge-pill badge-primary">Paketin: @Model.Session.PackageName (L@Model.Session.PackageLevel)</span>
+                                <span class="badge badge-pill badge-primary">Paketin: @Model.Session.PackageName (@Model.Session.PackageLevel)</span>
                             }
                         </div>
                     </div>
@@ -51,7 +51,7 @@
                                     <div class="px-3 flex">
                                         <div class="text-white">@song.Name</div>
                                         <small class="text-muted">@(song.Album?.Name ?? "-")</small>
-                                        <div><span class="badge badge-secondary">Şarkı L@song.Level</span></div>
+                                        <div><span class="badge badge-secondary">Şarkı @song.Level</span></div>
                                     </div>
                                     <button class="btn btn-sm btn-primary play-btn" data-song-id="@song.Id" data-source="@song.FilePath">Play</button>
                                 </div>

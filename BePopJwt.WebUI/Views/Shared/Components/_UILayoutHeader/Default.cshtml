@@ -24,7 +24,7 @@
             <ul class="nav navbar-menu order-1 order-lg-2 align-items-center">
                 @if (session.IsAuthenticated)
                 {
-                    <li class="nav-item mr-2"><span class="badge badge-pill badge-primary">@session.PackageName (L@session.PackageLevel)</span></li>
+                    <li class="nav-item mr-2"><span class="badge badge-pill badge-primary">@session.PackageName (@session.PackageLevel)</span></li>
                     <li class="nav-item mr-2"><span class="text-muted">@session.UserName</span></li>
                     <li class="nav-item"><a class="nav-link" asp-controller="Auth" asp-action="Logout">Logout</a></li>
                 }
