@@ -3,7 +3,7 @@ using BePopJwt.WebUI.Dtos.BaseDtos;
 
 namespace BePopJwt.WebUI.Services.AuthServices
 {
-    public  class ApiAuthService(HttpClient client) : IApiAuthService
+    public class ApiAuthService(HttpClient client) : IApiAuthService
     {
         public async Task<(bool IsSuccess, AuthResponseDto? Response, string? Error)> LoginAsync(LoginRequestDto request)
         {

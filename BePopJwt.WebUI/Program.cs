@@ -1,11 +1,16 @@
+using BePopJwt.WebUI.Services;
 using BePopJwt.WebUI.Services.AuthServices;
 using BePopJwt.WebUI.Services.CatalogServices;
 using BePopJwt.WebUI.Services.PlayerServices;
+using BePopJwt.WebUI.Services.UserSessionServices;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<IUserSessionService, UserSessionService>();
+
 var apiBaseUrl = builder.Configuration["ApiSettings:BaseUrl"] ?? "https://localhost:7068/";
 builder.Services.AddHttpClient<IApiAuthService, ApiAuthService>(c => c.BaseAddress = new Uri(apiBaseUrl));
 builder.Services.AddHttpClient<IApiCatalogService, ApiCatalogService>(c => c.BaseAddress = new Uri(apiBaseUrl));

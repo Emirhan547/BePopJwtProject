@@ -1,0 +1,31 @@
+﻿@using BePopJwt.WebUI.Dtos.HistoryDtos
+@model List<UserHistoryDto>
+@{
+    ViewData["Title"] = "History";
+    Layout = "~/Views/Shared/_UILayout.cshtml";
+    var error = ViewBag.Error as string;
+}
+<div id="main" class="layout-row flex">
+    <div id="content" class="flex ">
+        <div class="page-content page-container" id="page-content">
+            <div class="padding sr">
+                <h2 class="text-white">Benim Dinleme Geçmişim</h2>
+                @if (!string.IsNullOrWhiteSpace(error))
+                {
+                    <div class="alert alert-warning">@error</div>
+                }
+                @foreach (var item in Model)
+                {
+                    <div class="d-flex align-items-center py-2 b-b">
+                        <img src="@(string.IsNullOrWhiteSpace(item.Song.CoverUrl) ? "/Bepop/assets/img/b1.jpg" : item.Song.CoverUrl)" width="44" height="44" class="rounded" />
+                        <div class="px-3 flex">
+                            <div class="text-white">@item.Song.Name</div>
+                            <small class="text-muted">@item.PlayedAt.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</small>
+                        </div>
+                        <span class="text-muted">@item.PlayDuration sn</span>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

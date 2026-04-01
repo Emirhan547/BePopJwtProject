@@ -1,26 +1,45 @@
-﻿@using BePopJwt.WebUI.Dtos.SongDtos
+﻿@using BePopJwt.WebUI.Dtos.AuthDtos
+@using BePopJwt.WebUI.Dtos.SongDtos
 @model List<SongWithAlbumDto>
 @{
     ViewData["Title"] = "Charts";
     Layout = "~/Views/Shared/_UILayout.cshtml";
+    var session = ViewBag.Session as UserSessionViewModel ?? new();
 }
 <div id="main" class="layout-row flex">
-    <div id="content" class="flex">
-        <div class="page-content page-container p-5">
-            <h2 class="text-white mb-4">Top Charts</h2>
-            <table class="table table-dark table-striped">
-                <thead><tr><th>#</th><th>Şarkı</th><th>Albüm</th><th>Seviye</th></tr></thead>
-                <tbody>
+    <div id="content" class="flex ">
+        <div class="page-content page-container" id="page-content">
+            <div class="padding sr" id="list">
+                <div class="page-hero">
+                    <div class="pos-rlt">
+                        <h1 class="display-3 font-weight-bold text-white">Weekly Top Charts</h1>
+                        @if (session.IsAuthenticated)
+                        {
+                            <span class="badge badge-pill badge-primary">Paketin: @session.PackageName (L@session.PackageLevel)</span>
+                        }
+                    </div>
+                </div>
+                <div class="mt-4">
                     @for (var i = 0; i < Model.Count; i++)
                     {
-                        <tr>
-                            <td>@(i + 1)</td>
-                            <td>@Model[i].Name</td>
-                            <td>@(Model[i].Album?.Name ?? "-")</td>
-                            <td>@Model[i].Level</td>
-                        </tr>
+                        var song = Model[i];
+                        var isAllowed = !session.IsAuthenticated || session.PackageLevel is null || song.Level >= session.PackageLevel;
+                        <div class="d-flex align-items-center py-2 b-b">
+                            <div class="w-32 text-muted">#@(i + 1)</div>
+                            <img src="@(string.IsNullOrWhiteSpace(song.CoverUrl) ? "/Bepop/assets/img/b1.jpg" : song.CoverUrl)" width="42" height="42" class="rounded" />
+                            <div class="px-3 flex">
+                                <div class="text-white">@song.Name</div>
+                                <small class="text-muted">@(song.Album?.Name ?? "-")</small>
+                            </div>
+                            <span class="badge badge-secondary mr-2">Şarkı L@song.Level</span>
+                            @if (session.IsAuthenticated)
+                            {
+                                <span class="badge @(isAllowed ? "badge-success" : "badge-danger")">@(isAllowed ? "Erişim Var" : "Yükselt")</span>
+                            }
+                        </div>
                     }
-                </tbody>
-            </table>
-        </div>    </div>
+                </div>
+            </div>
+        </div>
     </div>
+</div>

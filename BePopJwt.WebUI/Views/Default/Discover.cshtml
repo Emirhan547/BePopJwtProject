@@ -5,24 +5,103 @@
     Layout = "~/Views/Shared/_UILayout.cshtml";
 }
 <div id="main" class="layout-row flex">
-    <div id="content" class="flex">
-        <div class="page-content page-container p-5">
-            <h2 class="text-white mb-4">Paketine Uygun Şarkılar</h2>
-            @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
-            {
-                <div class="alert alert-warning">@Model.ErrorMessage</div>
-            }
-            <div class="row">
-                @foreach (var song in Model.AccessibleSongs)
-                {
-                    <div class="col-md-4 mb-3">
-                        <div class="p-3 b-a rounded h-100">
-                            <div class="text-white">@song.Name</div>
-                            <div class="text-muted">@(song.Album?.Name ?? "Albüm yok")</div>
-                            <small class="text-muted">Duration: @song.Duration sn</small>
+    <div id="content" class="flex ">
+        <div>
+            <div class="page-content page-container" id="page-content">
+                <div class="padding sr">
+                    <div class="page-hero">
+                        <div class="media bg-media"><div class="media-content" style="background-image:url(/Bepop/assets/img/b9.jpg)"></div></div>
+                        <div class="pos-rlt">
+                            <h2 class="display-3 font-weight-bold text-white">Discover</h2>
+                            <p class="text-muted col-md-8 px-0">Paket seviyene göre erişebileceğin şarkılar ve kişisel öneriler.</p>
+                            @if (Model.Session.IsAuthenticated)
+                            {
+                                <span class="badge badge-pill badge-primary">Paketin: @Model.Session.PackageName (L@Model.Session.PackageLevel)</span>
+                            }
                         </div>
                     </div>
-                }
+
+                    @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+                    {
+                        <div class="alert alert-warning mt-3">@Model.ErrorMessage</div>
+                    }
+
+                    <h5 class="mt-5 text-highlight">Önerilen Şarkılar</h5>
+                    <div class="row row-sm">
+                        @foreach (var song in Model.RecommendedSongs)
+                        {
+                            <div class="col-6 col-md-4 col-lg-3 py-2">
+                                <div class="list-item r box">
+                                    <div class="media"><a class="media-content" style="background-image:url(@(string.IsNullOrWhiteSpace(song.CoverUrl) ? "/Bepop/assets/img/b2.jpg" : song.CoverUrl))"></a></div>
+                                    <div class="list-content p-2">
+                                        <div class="list-body"><span class="list-title text-white">@song.Name</span><div class="text-muted text-sm">@(song.Album?.Name ?? "-")</div></div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+
+                    <h5 class="mt-4 text-highlight">Sana Açık Şarkılar</h5>
+                    <div class="row row-sm" id="discover-song-grid">
+                        @foreach (var song in Model.AccessibleSongs)
+                        {
+                            <div class="col-12 col-md-6 py-2">
+                                <div class="d-flex b-a rounded p-2 align-items-center">
+                                    <img src="@(string.IsNullOrWhiteSpace(song.CoverUrl) ? "/Bepop/assets/img/b1.jpg" : song.CoverUrl)" width="56" height="56" class="rounded" />
+                                    <div class="px-3 flex">
+                                        <div class="text-white">@song.Name</div>
+                                        <small class="text-muted">@(song.Album?.Name ?? "-")</small>
+                                        <div><span class="badge badge-secondary">Şarkı L@song.Level</span></div>
+                                    </div>
+                                    <button class="btn btn-sm btn-primary play-btn" data-song-id="@song.Id" data-source="@song.FilePath">Play</button>
+                                </div>
+                            </div>
+                        }
+                    </div>
+
+                    <div class="mt-4 p-3 b-a rounded">
+                        <h6 class="text-highlight">Web Player</h6>
+                        <audio id="web-player" controls class="w-100"></audio>
+                        <small class="text-muted" id="player-status">Şarkı seç ve oynat.</small>
+                    </div>
+                </div>
             </div>
-        </div>    </div>
+        </div>
     </div>
+</div>
+
+<script>
+    (function () {
+        const player = document.getElementById('web-player');
+        const status = document.getElementById('player-status');
+        let currentSongId = 0;
+        let startedAt = null;
+
+        document.querySelectorAll('.play-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                currentSongId = Number(btn.dataset.songId || 0);
+                const source = btn.dataset.source;
+                if (!source) return;
+                player.src = source;
+                player.play();
+                startedAt = Date.now();
+                status.textContent = 'Çalıyor...';
+            });
+        });
+
+        player.addEventListener('ended', sendPlayHistory);
+
+        async function sendPlayHistory() {
+            if (!currentSongId || !startedAt) return;
+            const duration = Math.max(1, Math.floor((Date.now() - startedAt) / 1000));
+
+            const response = await fetch('@Url.Action("Play", "Default")', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ songId: currentSongId, playDuration: duration })
+            });
+
+            status.textContent = response.ok ? 'Dinleme kaydı alındı.' : 'Dinleme kaydı alınamadı.';
+        }
+    })();
+</script>

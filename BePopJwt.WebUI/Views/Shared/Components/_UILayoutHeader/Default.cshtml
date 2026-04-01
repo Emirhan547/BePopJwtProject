@@ -1,24 +1,38 @@
-﻿
-@*
-    UILayout Header
-*@
-<header id="header" class="page-header fixed">
+﻿@using BePopJwt.WebUI.Services
+@using BePopJwt.WebUI.Services.UserSessionServices
+@inject IUserSessionService SessionService
+@{
+    var session = SessionService.GetCurrent();
+}
+<header id="header" class="page-header scroll-header fixed">
     <div class="navbar navbar-expand-lg">
-        <a asp-controller="Default" asp-action="Index" class="navbar-brand text-white ">
-            <span class="hidden-folded d-inline l-s-n-1x ">Bepop</span>
-        </a>
-        <!-- / brand -->
-        <!-- Navbar collapse -->
+       
+        <a asp-controller="Default" asp-action="Index" class="navbar-brand text-white "><span class="hidden-folded d-inline l-s-n-1x ">Bepop</span></a>
         <div class="collapse navbar-collapse order-2 order-lg-1" id="navbarCollapse">
             <ul class="navbar-nav" data-nav>
+               
                 <li class="nav-item"><a asp-controller="Default" asp-action="Discover" class="nav-link"><span class="nav-text">Discover</span></a></li>
                 <li class="nav-item"><a asp-controller="Default" asp-action="Charts" class="nav-link"><span class="nav-text">Charts</span></a></li>
                 <li class="nav-item"><a asp-controller="Default" asp-action="Artists" class="nav-link"><span class="nav-text">Artists</span></a></li>
+                @if (session.IsAuthenticated)
+                {
+                    <li class="nav-item"><a asp-controller="Default" asp-action="History" class="nav-link"><span class="nav-text">History</span></a></li>
+                }
             </ul>
         </div>
-        <ul class="nav navbar-menu order-1 order-lg-2">
-            <li class="nav-item"><a class="nav-link no-ajax" asp-controller="Auth" asp-action="SignIn">Login</a></li>
-            <li class="d-flex align-items-center"><a class="btn btn-rounded btn-sm btn-primary no-ajax" asp-controller="Auth" asp-action="SignUp">Register</a></li>
-        </ul>
-    </div>
-</header>
+       
+            <ul class="nav navbar-menu order-1 order-lg-2 align-items-center">
+                @if (session.IsAuthenticated)
+                {
+                    <li class="nav-item mr-2"><span class="badge badge-pill badge-primary">@session.PackageName (L@session.PackageLevel)</span></li>
+                    <li class="nav-item mr-2"><span class="text-muted">@session.UserName</span></li>
+                    <li class="nav-item"><a class="nav-link" asp-controller="Auth" asp-action="Logout">Logout</a></li>
+                }
+                else
+                {
+                    <li class="nav-item"><a class="nav-link no-ajax" asp-controller="Auth" asp-action="SignIn">Login</a></li>
+                    <li class="d-flex align-items-center"><a class="btn btn-rounded btn-sm btn-primary no-ajax" asp-controller="Auth" asp-action="SignUp">Register</a></li>
+                }
+            </ul>
+        </div>
+    </header>

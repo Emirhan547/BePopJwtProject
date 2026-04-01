@@ -5,14 +5,11 @@ using System.Net.Http.Headers;
 
 namespace BePopJwt.WebUI.Services.PlayerServices
 {
-    public sealed class ApiPlayerService(HttpClient client) : IApiPlayerService
+    public class ApiPlayerService(HttpClient client) : IApiPlayerService
     {
         public async Task<(bool IsSuccess, List<SongWithAlbumDto> Songs, string? Error)> GetAccessibleSongsAsync(string jwtToken)
         {
-            using var request = new HttpRequestMessage(HttpMethod.Get, "api/player/songs");
-            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", jwtToken);
-
-            var response = await client.SendAsync(request);
+            var response = await SendWithAuthAsync(jwtToken, HttpMethod.Get, "api/player/songs");
             var result = await response.Content.ReadFromJsonAsync<BaseResultDto<List<SongWithAlbumDto>>>();
 
             if (result is null)
@@ -27,10 +24,7 @@ namespace BePopJwt.WebUI.Services.PlayerServices
 
         public async Task<(bool IsSuccess, List<UserHistoryDto> History, string? Error)> GetHistoryAsync(string jwtToken)
         {
-            using var request = new HttpRequestMessage(HttpMethod.Get, "api/player/history");
-            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", jwtToken);
-
-            var response = await client.SendAsync(request);
+            var response = await SendWithAuthAsync(jwtToken, HttpMethod.Get, "api/player/history");
             var result = await response.Content.ReadFromJsonAsync<BaseResultDto<List<UserHistoryDto>>>();
 
             if (result is null)
@@ -41,6 +35,37 @@ namespace BePopJwt.WebUI.Services.PlayerServices
             return result.IsSuccess
                 ? (true, result.Data ?? [], null)
                 : (false, [], result.Errors?.FirstOrDefault()?.ErrorMessage ?? "History could not be loaded.");
+        }
+
+        public async Task<(bool IsSuccess, string? Error)> PlayAsync(string jwtToken, int songId, int playDuration)
+        {
+            var response = await SendWithAuthAsync(jwtToken, HttpMethod.Post, "api/player/play", new
+            {
+                SongId = songId,
+                PlayDuration = playDuration
+            });
+
+            var result = await response.Content.ReadFromJsonAsync<BaseResultDto<object>>();
+            if (result is null)
+            {
+                return (false, "Play response could not be parsed.");
+            }
+
+            return result.IsSuccess
+                ? (true, null)
+                : (false, result.Errors?.FirstOrDefault()?.ErrorMessage ?? "Şarkı dinleme kaydı atılamadı.");
+        }
+
+        private async Task<HttpResponseMessage> SendWithAuthAsync(string jwtToken, HttpMethod method, string url, object? payload = null)
+        {
+            using var request = new HttpRequestMessage(method, url);
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", jwtToken);
+            if (payload is not null)
+            {
+                request.Content = JsonContent.Create(payload);
+            }
+
+            return await client.SendAsync(request);
         }
     }
 }

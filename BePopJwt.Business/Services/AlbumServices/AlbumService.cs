@@ -33,18 +33,13 @@ namespace BePopJwt.Business.Services.AlbumServices
         public async Task<BaseResult<bool>> DeleteAsync(int id)
         {
             var album = await _repository.GetByIdAsync(id);
-
-            if (album == null)
-                return BaseResult<bool>.Fail("Album not found");
-
+            if(album is null)
+            {
+                return BaseResult<bool>.Fail("Album nulunamadı");
+            }
             _repository.Delete(album);
-
-            var result = await _unitOfWork.SaveChangesAsync();
-
-            if (result <= 0)
-                return BaseResult<bool>.Fail("Delete failed");
-
-            return BaseResult<bool>.Success(true);
+            var uow=await _unitOfWork.SaveChangesAsync();
+            return uow < 0 ? BaseResult<bool>.Fail("Album Silinemedi") : BaseResult<bool>.Success(true);
         }
 
         public async Task<BaseResult<List<ResultAlbumDto>>> GetAlbumsWithArtistAsync()

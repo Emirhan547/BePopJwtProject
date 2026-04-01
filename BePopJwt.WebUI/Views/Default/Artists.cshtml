@@ -5,20 +5,26 @@
     Layout = "~/Views/Shared/_UILayout.cshtml";
 }
 <div id="main" class="layout-row flex">
-    <div id="content" class="flex">
-        <div class="page-content page-container p-5">
-            <h2 class="text-white mb-4">Sanatçılar</h2>
-            <div class="row">
-                @foreach (var artist in Model)
-                {
-                    <div class="col-md-6 mb-3">
-                        <div class="p-3 b-a rounded h-100">
-                            <div class="text-white h5">@artist.Name</div>
-                            <div class="text-muted mb-2">Albüm Sayısı: @artist.Albums.Count</div>
-                            <small class="text-muted">@artist.Bio</small>
+    <div id="content" class="flex ">
+        <div class="page-content page-container" id="page-content">
+            <div class="padding sr">
+                <div class="page-hero"><h1 class="display-4 text-white">Artists</h1><p class="text-muted">Backend artist + albums verilerinden dinamik liste.</p></div>
+                <div class="row row-sm">
+                    @foreach (var artist in Model)
+                    {
+                        <div class="col-12 col-md-6 col-lg-4 py-3">
+                            <div class="list-item r box">
+                                <div class="media"><a class="media-content" style="background-image:url(@(string.IsNullOrWhiteSpace(artist.ImageUrl) ? "/Bepop/assets/img/a1.jpg" : artist.ImageUrl))"></a></div>
+                                <div class="list-content p-3">
+                                    <div class="text-white h5">@artist.Name</div>
+                                    <div class="text-muted text-sm mb-2">@artist.Bio</div>
+                                    <div class="text-muted text-sm">Albüm (@artist.Albums.Count): @string.Join(", ", artist.Albums.Select(a => a.Name).Take(3))</div>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                }
+                    }
+                </div>
             </div>
-        </div>    </div>
+        </div>
     </div>
+</div>

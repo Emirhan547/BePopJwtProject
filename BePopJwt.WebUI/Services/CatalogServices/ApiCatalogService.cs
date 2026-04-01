@@ -5,7 +5,7 @@ using BePopJwt.WebUI.Dtos.SongDtos;
 
 namespace BePopJwt.WebUI.Services.CatalogServices
 {
-    public sealed class ApiCatalogService(HttpClient client) : IApiCatalogService
+    public class ApiCatalogService(HttpClient client) : IApiCatalogService
     {
         public async Task<List<PackageDto>> GetPackagesAsync()
             => await GetDataOrDefaultAsync<List<PackageDto>>("api/packages") ?? [];

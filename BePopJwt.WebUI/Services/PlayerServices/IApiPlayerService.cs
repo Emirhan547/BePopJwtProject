@@ -7,5 +7,6 @@ namespace BePopJwt.WebUI.Services.PlayerServices
     {
         Task<(bool IsSuccess, List<SongWithAlbumDto> Songs, string? Error)> GetAccessibleSongsAsync(string jwtToken);
         Task<(bool IsSuccess, List<UserHistoryDto> History, string? Error)> GetHistoryAsync(string jwtToken);
+        Task<(bool IsSuccess, string? Error)> PlayAsync(string jwtToken, int songId, int playDuration);
     }
 }

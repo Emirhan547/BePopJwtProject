@@ -1,13 +1,13 @@
-﻿using BePopJwt.WebUI.Const;
-using BePopJwt.WebUI.Dtos.AuthDtos;
+﻿using BePopJwt.WebUI.Dtos.AuthDtos;
 using BePopJwt.WebUI.Services;
 using BePopJwt.WebUI.Services.AuthServices;
 using BePopJwt.WebUI.Services.CatalogServices;
+using BePopJwt.WebUI.Services.UserSessionServices;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BePopJwt.WebUI.Controllers;
 
-public class AuthController(IApiAuthService authService, IApiCatalogService catalogService) : Controller
+public class AuthController(IApiAuthService authService, IApiCatalogService catalogService, IUserSessionService userSessionService) : Controller
 {
     [HttpGet]
     public IActionResult SignIn() => View(new LoginDto());
@@ -22,7 +22,7 @@ public class AuthController(IApiAuthService authService, IApiCatalogService cata
             return View(vm);
         }
 
-        SetTokenCookie(result.Response.Token, result.Response.ExpiresAtUtc);
+        userSessionService.SignIn(result.Response);
         return RedirectToAction("Discover", "Default");
     }
 
@@ -44,24 +44,13 @@ public class AuthController(IApiAuthService authService, IApiCatalogService cata
             return View(vm);
         }
 
-        SetTokenCookie(result.Response.Token, result.Response.ExpiresAtUtc);
+        userSessionService.SignIn(result.Response);
         return RedirectToAction("Discover", "Default");
     }
 
     public IActionResult Logout()
     {
-        Response.Cookies.Delete(AuthCookieNames.JwtToken);
+        userSessionService.SignOut();
         return RedirectToAction("Index", "Default");
-    }
-
-    private void SetTokenCookie(string token, DateTime expiresAtUtc)
-    {
-        Response.Cookies.Append(AuthCookieNames.JwtToken, token, new CookieOptions
-        {
-            HttpOnly = true,
-            Secure = true,
-            SameSite = SameSiteMode.Strict,
-            Expires = new DateTimeOffset(expiresAtUtc)
-        });
     }
 }
