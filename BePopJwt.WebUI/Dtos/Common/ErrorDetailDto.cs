@@ -1,4 +1,4 @@
-﻿namespace BePopJwt.WebUI.Dtos.BaseDtos
+﻿namespace BePopJwt.WebUI.Dtos.Common
 {
     public class ErrorDetailDto
     {

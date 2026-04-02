@@ -1,13 +1,14 @@
 ﻿using BePopJwt.WebUI.Dtos.AuthDtos;
 using BePopJwt.WebUI.Services;
 using BePopJwt.WebUI.Services.AuthServices;
-using BePopJwt.WebUI.Services.CatalogServices;
+
+using BePopJwt.WebUI.Services.PackageServices;
 using BePopJwt.WebUI.Services.UserSessionServices;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BePopJwt.WebUI.Controllers;
 
-public class AuthController(IApiAuthService authService, IApiCatalogService catalogService, IUserSessionService userSessionService) : Controller
+public class AuthController(IApiAuthService authService, IApiPackageService packageService, IUserSessionService userSessionService) : Controller
 {
     [HttpGet]
     public IActionResult SignIn() => View(new LoginDto());
@@ -23,20 +24,20 @@ public class AuthController(IApiAuthService authService, IApiCatalogService cata
         }
 
         userSessionService.SignIn(result.Response);
-        return RedirectToAction("Discover", "Default");
+        return RedirectToAction("Discover", "Discovery");
     }
 
     [HttpGet]
     public async Task<IActionResult> SignUp()
     {
-        var vm = new RegisterDto { Packages = await catalogService.GetPackagesAsync() };
+        var vm = new RegisterDto { Packages = await packageService.GetPackagesAsync() }; 
         return View(vm);
     }
 
     [HttpPost]
     public async Task<IActionResult> SignUp(RegisterDto vm)
     {
-        vm.Packages = await catalogService.GetPackagesAsync();
+        vm.Packages = await packageService.GetPackagesAsync();
         var result = await authService.RegisterAsync(vm.Request);
         if (!result.IsSuccess || result.Response is null)
         {
@@ -45,7 +46,7 @@ public class AuthController(IApiAuthService authService, IApiCatalogService cata
         }
 
         userSessionService.SignIn(result.Response);
-        return RedirectToAction("Discover", "Default");
+        return RedirectToAction("Discover", "Discovery");
     }
 
     public IActionResult Logout()

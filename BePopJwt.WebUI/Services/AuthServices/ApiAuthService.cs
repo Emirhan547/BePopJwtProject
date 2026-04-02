@@ -1,5 +1,5 @@
 ﻿using BePopJwt.WebUI.Dtos.AuthDtos;
-using BePopJwt.WebUI.Dtos.BaseDtos;
+using BePopJwt.WebUI.Dtos.Common;
 
 namespace BePopJwt.WebUI.Services.AuthServices
 {

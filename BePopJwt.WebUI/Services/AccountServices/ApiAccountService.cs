@@ -1,5 +1,5 @@
 ﻿using BePopJwt.WebUI.Dtos.AuthDtos;
-using BePopJwt.WebUI.Dtos.BaseDtos;
+using BePopJwt.WebUI.Dtos.Common;
 using BePopJwt.WebUI.Dtos.UserDtos;
 using System.Net.Http.Headers;
 

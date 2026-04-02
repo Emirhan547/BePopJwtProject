@@ -6,6 +6,7 @@ using BePopJwt.Business.Services.OpenAiServices;
 using BePopJwt.Business.Services.RecommendationServices;
 using BePopJwt.DataAccess.Repositories.PlayerRepositories;
 using BePopJwt.DataAccess.Repositories.SongRepositories;
+using BePopJwt.DataAccess.Repositories.UserRepositories;
 using BePopJwt.DataAccess.Repositories.UserSongRepositories;
 using BePopJwt.DataAccess.Uow;
 using BePopJwt.Entity.Entities;

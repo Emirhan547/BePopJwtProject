@@ -1,8 +1,50 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@using BePopJwt.WebUI.Dtos.HomeDtos
+@model HomeViewModel
+@{
+    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Anasayfa";
+    Layout = "~/Views/Shared/_UILayout.cshtml";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+<div id="main" class="layout-row flex">
+   
+                <div id="content" class="flex">
+                    <div class="page-content page-container p-5">
+                        <div class="page-hero mb-5">
+                            <h1 class="display-4 font-weight-bold text-white">BePop Music Platform</h1>
+                            <p class="text-muted">Backend verilerinle çalışan dinamik ana sayfa.</p>
+                <a asp-controller="Default" asp-action="Discover" class="btn btn-primary btn-rounded px-4">Discover</a>
+            </div>
+                       
+
+                                <div class="row">
+                                    <div class="col-md-8">
+                                  <h5 class="modern-title mb-3">Son Eklenen Şarkılar</h5>                                        @foreach (var song in Model.Songs.Take(8))
+                                        {
+                        <div class="d-flex align-items-center mb-3 p-3 modern-card">
+                                                <img src="@(string.IsNullOrWhiteSpace(song.CoverUrl) ? "/Bepop/assets/img/b1.jpg" : song.CoverUrl)" width="52" height="52" class="rounded" />
+                                                <div class="px-3">
+                                <div class="text-white">
+                                    <a class="text-white js-song-link" data-song-id="@song.Id" href="@Url.Action("SongDetail", "Default", new { id = song.Id, autoPlay = true })">@song.Name</a>
+                                </div>
+                                                    <small class="text-muted">Albüm: @(song.Album?.Name ?? "-") • Seviye: @song.Level</small>
+                                                </div>
+                                            </div>
+                                        }
+                                    </div>
+                                    <div class="col-md-4">
+                    <h5 class="modern-title mb-3">Paketler</h5>
+                                        @foreach (var package in Model.Packages.OrderBy(p => p.Level))
+                                        {
+                        <div class="mb-3 p-3 modern-card">
+                                                <div class="text-white">@package.Name</div>
+                                                <small class="text-muted">Level: @package.Level • ₺@package.Price</small>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- ############ Main END-->
+                        </div>
+                        <!-- ############ Content END-->
+                    </div>

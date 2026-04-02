@@ -1,4 +1,4 @@
-﻿using BePopJwt.WebUI.Dtos.BaseDtos;
+﻿using BePopJwt.WebUI.Dtos.Common;
 using BePopJwt.WebUI.Dtos.HistoryDtos;
 using BePopJwt.WebUI.Dtos.SongDtos;
 using System.Net.Http.Headers;

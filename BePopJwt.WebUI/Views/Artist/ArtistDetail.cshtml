@@ -50,12 +50,12 @@
                             <img src="@(string.IsNullOrWhiteSpace(song.CoverUrl) ? "/Bepop/assets/img/b6.jpg" : song.CoverUrl)" width="42" height="42" class="rounded" />
                             <div class="px-3 flex">
                                 <div class="text-white">
-                                    <a class="text-white js-song-link" data-song-id="@song.Id" href="@Url.Action("SongDetail", "Default", new { id = song.Id, autoPlay = true })">@song.Name</a>
+                                    <a class="text-white js-song-link" data-song-id="@song.Id" href="@Url.Action("SongDetail", "Song", new { id = song.Id, autoPlay = true })">@song.Name</a>
                                 </div>
                                 <small class="text-muted">@(song.Album?.Name ?? "-")</small>
                             </div>
                             <span class="badge badge-secondary mr-2">Şarkı @song.Level</span>
-                            <button class="btn btn-sm @(isAllowed ? "btn-primary artist-play-btn" : "btn-outline-warning restricted-song-btn")" data-song-id="@song.Id" data-packages-url="@Url.Action("Packages", "Default")">
+                            <button class="btn btn-sm @(isAllowed ? "btn-primary artist-play-btn" : "btn-outline-warning restricted-song-btn")" data-song-id="@song.Id" data-packages-url="@Url.Action("Packages", "Package")">
                                 @(isAllowed ? "Play" : "Paketi Yükselt")
                             </button>
                         </div>

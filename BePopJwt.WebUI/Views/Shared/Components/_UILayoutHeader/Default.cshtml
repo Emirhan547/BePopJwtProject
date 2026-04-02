@@ -11,14 +11,14 @@
         <div class="collapse navbar-collapse order-2 order-lg-1" id="navbarCollapse">
             <ul class="navbar-nav" data-nav>
                
-                <li class="nav-item"><a asp-controller="Default" asp-action="Discover" class="nav-link"><span class="nav-text">Discover</span></a></li>
-                <li class="nav-item"><a asp-controller="Default" asp-action="Charts" class="nav-link"><span class="nav-text">Charts</span></a></li>
-                <li class="nav-item"><a asp-controller="Default" asp-action="Artists" class="nav-link"><span class="nav-text">Artists</span></a></li>
+                <li class="nav-item"><a asp-controller="Discovery" asp-action="Discover" class="nav-link"><span class="nav-text">Discover</span></a></li>
+                <li class="nav-item"><a asp-controller="Discovery" asp-action="Charts" class="nav-link"><span class="nav-text">Charts</span></a></li>
+                <li class="nav-item"><a asp-controller="Artist" asp-action="Artists" class="nav-link"><span class="nav-text">Artists</span></a></li>
                 @if (session.IsAuthenticated)
                 {
-                    <li class="nav-item"><a asp-controller="Default" asp-action="History" class="nav-link"><span class="nav-text">History</span></a></li>
-                    <li class="nav-item"><a asp-controller="Default" asp-action="Packages" class="nav-link"><span class="nav-text">Paketler</span></a></li>
-                    <li class="nav-item"><a asp-controller="Default" asp-action="Profile" class="nav-link"><span class="nav-text">Profil</span></a></li>
+                    <li class="nav-item"><a asp-controller="History" asp-action="History" class="nav-link"><span class="nav-text">History</span></a></li>
+                    <li class="nav-item"><a asp-controller="Package" asp-action="Packages" class="nav-link"><span class="nav-text">Paketler</span></a></li>
+                    <li class="nav-item"><a asp-controller="Profile" asp-action="Profile" class="nav-link"><span class="nav-text">Profil</span></a></li>
                 }
             </ul>
         </div>
