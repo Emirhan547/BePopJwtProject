@@ -19,10 +19,10 @@ public class ProfileController(IApiAccountService accountService, IUserSessionSe
         if (!result.IsSuccess || result.Profile is null)
         {
             ViewBag.Error = result.Error ?? "Profil bilgileri yüklenemedi.";
-            return View("~/Views/Default/Profile.cshtml", new UserProfileDto());
+            return View("Profile", new UserProfileDto());
         }
 
-        return View("~/Views/Default/Profile.cshtml", result.Profile);
+        return View("Profile", result.Profile);
     }
 
     [HttpPost]
@@ -39,7 +39,7 @@ public class ProfileController(IApiAccountService accountService, IUserSessionSe
         if (!result.IsSuccess || result.Profile is null)
         {
             ViewBag.Error = result.Error ?? "Profil güncellenemedi.";
-            return View("~/Views/Default/Profile.cshtml", new UserProfileDto
+            return View("Profile", new UserProfileDto
             {
                 UserName = request.UserName,
                 Email = request.Email,
@@ -50,6 +50,6 @@ public class ProfileController(IApiAccountService accountService, IUserSessionSe
 
         userSessionService.UpdateDisplayName(result.Profile.DisplayName);
         ViewBag.Success = "Profilin başarıyla güncellendi.";
-        return View("~/Views/Default/Profile.cshtml", result.Profile);
+        return View("Profile", result.Profile);
     }
 }

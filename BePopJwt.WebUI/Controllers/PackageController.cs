@@ -19,7 +19,7 @@ public class PackageController(
             return RedirectToAction("SignIn", "Auth");
         }
 
-        return View("~/Views/Default/Packages.cshtml", new PackageManagementViewModel
+        return View("Packages", new PackageManagementViewModel
         {
             Session = session,
             Packages = await packageService.GetPackagesAsync(),
@@ -39,7 +39,7 @@ public class PackageController(
         var result = await accountService.ChangePackageAsync(session.Token, packageId);
         if (!result.IsSuccess || result.Response is null)
         {
-            return View("~/Views/Default/Packages.cshtml", new PackageManagementViewModel
+            return View("Packages", new PackageManagementViewModel
             {
                 Session = session,
                 Packages = await packageService.GetPackagesAsync(),

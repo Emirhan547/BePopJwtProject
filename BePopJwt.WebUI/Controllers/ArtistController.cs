@@ -13,7 +13,8 @@ public class ArtistController(
     public async Task<IActionResult> Artists()
     {
         ViewBag.Session = userSessionService.GetCurrent();
-        return View("~/Views/Default/Artists.cshtml", await artistService.GetArtistsWithAlbumsAsync());
+        return View("Artists", await artistService.GetArtistsWithAlbumsAsync());
+
     }
 
     public async Task<IActionResult> ArtistDetail(int id)
@@ -28,6 +29,6 @@ public class ArtistController(
         var songs = await songService.GetSongsWithAlbumAsync();
         ViewBag.ArtistSongs = songs.Where(x => artist.Albums.Any(a => a.Id == (x.Album?.Id ?? 0))).ToList();
         ViewBag.Session = userSessionService.GetCurrent();
-        return View("~/Views/Default/ArtistDetail.cshtml", artist);
+        return View("ArtistDetail", artist);
     }
 }

@@ -14,17 +14,17 @@ namespace BePopJwt.Business.Services.ArtistServices
 {
     public class ArtistService(IArtistRepository _artistRepository,IUnitOfWork _unitOfWork,IValidator<CreateArtistDto> _createValidator,IValidator<UpdateArtistDto> _updateValidator) : IArtistService
     {
-        public async Task<BaseResult<CreateArtistDto>> CreateAsync(CreateArtistDto createArtistDto)
+        public async Task<BaseResult<ResultArtistDto>> CreateAsync(CreateArtistDto createArtistDto)
         {
             var validationArtist=await _createValidator.ValidateAsync(createArtistDto);
             if(!validationArtist.IsValid)
             {
-                return BaseResult<CreateArtistDto>.Fail(validationArtist.Errors);
+                return BaseResult<ResultArtistDto>.Fail(validationArtist.Errors);
             }
             var mappedArtist = createArtistDto.Adapt<Artist>();
             await _artistRepository.CreateAsync(mappedArtist);
             var uow=await _unitOfWork.SaveChangesAsync();
-            return uow < 0 ? BaseResult<CreateArtistDto>.Fail("Artist Eklenemedi") : BaseResult<CreateArtistDto>.Success(mappedArtist.Adapt<CreateArtistDto>());
+            return uow < 0 ? BaseResult<ResultArtistDto>.Fail("Artist Eklenemedi") : BaseResult<ResultArtistDto>.Success(mappedArtist.Adapt<ResultArtistDto>());
         }
 
         public async Task<BaseResult<bool>> DeleteAsync(int id)
@@ -64,22 +64,22 @@ namespace BePopJwt.Business.Services.ArtistServices
             return BaseResult<ResultArtistDto>.Success(mappedArtist);
         }
 
-        public async Task<BaseResult<UpdateArtistDto>> UpdateAsync(UpdateArtistDto updateArtistDto)
+        public async Task<BaseResult<ResultArtistDto>> UpdateAsync(UpdateArtistDto updateArtistDto)
         {
             var validationArtist=await _updateValidator.ValidateAsync(updateArtistDto);
             if(!validationArtist.IsValid)
             {
-                return BaseResult<UpdateArtistDto>.Fail(validationArtist.Errors);
+                return BaseResult<ResultArtistDto>.Fail(validationArtist.Errors);
             }
             var artist = await _artistRepository.GetByIdAsync(updateArtistDto.Id);
             if(artist is null)
             {
-                return BaseResult<UpdateArtistDto>.Fail("Artist Bulunamadı");
+                return BaseResult<ResultArtistDto>.Fail("Artist Bulunamadı");
             }
             var mapped = updateArtistDto.Adapt(artist);
             _artistRepository.Update(mapped);
            var uow= await _unitOfWork.SaveChangesAsync();
-            return uow > 0 ? BaseResult<UpdateArtistDto>.Success(mapped.Adapt<UpdateArtistDto>()) : BaseResult<UpdateArtistDto>.Fail("Artist Güncellenemedi");
+            return uow > 0 ? BaseResult<ResultArtistDto>.Success(mapped.Adapt<ResultArtistDto>()) : BaseResult<ResultArtistDto>.Fail("Artist Güncellenemedi");
                
 
         }

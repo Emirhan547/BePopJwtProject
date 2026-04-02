@@ -2,7 +2,7 @@
 // for details on configuring this project to bundle and minify static web assets.
 (function () {
     async function getSongSource(songId) {
-        const response = await fetch(`/Default/SongSource?songId=${songId}`);
+        const response = await fetch(`/Discovery/SongSource?songId=${songId}`);
         const data = await response.json();
         if (!response.ok || !data.ok || !data.source) {
             return null;
@@ -47,7 +47,7 @@
 
         const restrictedButton = event.target.closest('.restricted-song-btn');
         if (restrictedButton) {
-            const packagesUrl = restrictedButton.dataset.packagesUrl || '/Default/Packages';
+            const packagesUrl = restrictedButton.dataset.packagesUrl || '/Package/Packages';
 
             if (window.Swal) {
                 const result = await window.Swal.fire({

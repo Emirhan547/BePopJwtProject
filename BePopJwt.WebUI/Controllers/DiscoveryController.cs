@@ -15,7 +15,7 @@ public class DiscoveryController(
     {
         ViewBag.Session = userSessionService.GetCurrent();
         var songs = await songService.GetSongsWithAlbumAsync();
-        return View("~/Views/Default/Charts.cshtml", songs.OrderBy(s => s.Level).ThenBy(s => s.Name).ToList());
+        return View("Charts", songs.OrderBy(s => s.Level).ThenBy(s => s.Name).ToList());
     }
 
     public async Task<IActionResult> Discover(string mood = "mutlu")
@@ -23,7 +23,7 @@ public class DiscoveryController(
         var session = userSessionService.GetCurrent();
         if (!session.IsAuthenticated || string.IsNullOrWhiteSpace(session.Token))
         {
-            return View("~/Views/Default/Discover.cshtml", new DiscoverViewModel
+            return View("Discover", new DiscoverViewModel
             {
                 Session = session,
                 ErrorMessage = "Bu sayfada paket yetkine uygun içerikleri görmek için giriş yapmalısın."
@@ -34,7 +34,7 @@ public class DiscoveryController(
         var historyResult = await playerService.GetHistoryAsync(session.Token);
         var recommendationsResult = await playerService.GetMoodRecommendationsAsync(session.Token, mood, 8);
 
-        return View("~/Views/Default/Discover.cshtml", new DiscoverViewModel
+        return View("Discover", new DiscoverViewModel
         {
             Session = session,
             AccessibleSongs = songsResult.Songs,
@@ -100,7 +100,7 @@ public class DiscoveryController(
         ViewBag.Session = userSessionService.GetCurrent();
         ViewBag.RelatedSongs = songs.Where(x => x.Id != id && x.Album?.Id == song.Album?.Id).Take(6).ToList();
         ViewBag.AutoPlay = autoPlay;
-        return View("~/Views/Default/SongDetail.cshtml", song);
+        return View("SongDetail", song);
     }
 
     [HttpPost]

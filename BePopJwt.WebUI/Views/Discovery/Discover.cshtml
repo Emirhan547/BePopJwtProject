@@ -125,7 +125,7 @@
                         <div class="col-6 col-md-4 col-lg-3 py-2 recommendation-card">
                             <div class="list-item r box song-card-modern">
                                 <div class="media">
-                                    <a data-song-id="@song.Id" href="@Url.Action("SongDetail", "Default", new { id = song.Id, autoPlay = true })" class="media-content js-song-link" style="background-image:url('@(string.IsNullOrWhiteSpace(song.CoverUrl) ? "/Bepop/assets/img/b2.jpg" : song.CoverUrl)')"></a>
+                                  <a data-song-id="@song.Id" href="@Url.Action("SongDetail", "Discovery", new { id = song.Id, autoPlay = true })" class="media-content js-song-link" style="background-image:url('@(string.IsNullOrWhiteSpace(song.CoverUrl) ? "/Bepop/assets/img/b2.jpg" : song.CoverUrl)')"></a>
                                 </div>
                                 <div class="list-content p-2">
                                     <div class="list-body">
@@ -162,7 +162,7 @@
                             <div class="d-flex align-items-center p-3 song-card-modern">
                                 <img src="@(string.IsNullOrWhiteSpace(song.CoverUrl) ? "/Bepop/assets/img/b1.jpg" : song.CoverUrl)" width="56" height="56" class="rounded" />
                                 <div class="px-3 flex">
-                                    <div class="text-white"><a class="text-white js-song-link" data-song-id="@song.Id" href="@Url.Action("SongDetail", "Default", new { id = song.Id, autoPlay = true })">@song.Name</a></div>
+                                   <div class="text-white"><a class="text-white js-song-link" data-song-id="@song.Id" href="@Url.Action("SongDetail", "Discovery", new { id = song.Id, autoPlay = true })">@song.Name</a></div>
                                     <small class="text-muted">@(song.Album?.Name ?? "-")</small>
                                     <div><span class="badge badge-secondary">Şarkı @song.Level</span></div>
                                 </div>
@@ -204,7 +204,7 @@
         function recommendationCard(song) {
             const cover = song.coverUrl || '/Bepop/assets/img/b2.jpg';
             const albumName = (song.album && song.album.name) ? song.album.name : '-';
-            const songUrl = `@Url.Action("SongDetail", "Default")?id=${song.id}&autoPlay=true`;
+            const songUrl = `@Url.Action("SongDetail", "Discovery")?id=${song.id}&autoPlay=true`;
             return `<div class="col-6 col-md-4 col-lg-3 py-2 recommendation-card">
                     <div class="list-item r box song-card-modern">
                         <div class="media"><a href="${songUrl}" class="media-content" style="background-image:url('${cover}')"></a></div>
@@ -221,7 +221,7 @@
         }
 
         async function refreshRecommendations() {
-            const response = await fetch(`@Url.Action("Recommendations", "Default")?take=8`);
+           const response = await fetch(`@Url.Action("Recommendations", "Discovery")?take=8`);
             if (!response.ok) return;
             const data = await response.json();
             if (data.ok && Array.isArray(data.songs)) {
@@ -236,8 +236,8 @@
             promptFeedback.textContent = 'AI önerileri hazırlanıyor...';
 
             const endpoint = prompt
-                ? `@Url.Action("PromptRecommendations", "Default")?take=8&prompt=${encodeURIComponent(prompt)}`
-                : `@Url.Action("Discover", "Default")?mood=${encodeURIComponent(fallbackMood)}`;
+               ? `@Url.Action("PromptRecommendations", "Discovery")?take=8&prompt=${encodeURIComponent(prompt)}`
+                : `@Url.Action("Discover", "Discovery")?mood=${encodeURIComponent(fallbackMood)}`;
 
             if (!prompt) {
                 window.location.href = endpoint;
@@ -315,7 +315,7 @@
         document.querySelectorAll('.play-btn').forEach(btn => {
             btn.addEventListener('click', async () => {
                 currentSongId = Number(btn.dataset.songId || 0);
-                const sourceResponse = await fetch(`@Url.Action("SongSource", "Default")?songId=${currentSongId}`);
+               const sourceResponse = await fetch(`@Url.Action("SongSource", "Discovery")?songId=${currentSongId}`);
                 const sourceData = await sourceResponse.json();
                 if (!sourceResponse.ok || !sourceData.ok || !sourceData.source) {
                     status.textContent = sourceData.message || 'Şarkı kaynağına erişilemedi.';
@@ -334,7 +334,7 @@
             if (!currentSongId || !startedAt) return;
             const duration = Math.max(1, Math.floor((Date.now() - startedAt) / 1000));
 
-            const response = await fetch('@Url.Action("Play", "Default")', {
+           const response = await fetch('@Url.Action("Play", "Discovery")', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ songId: currentSongId, playDuration: duration })

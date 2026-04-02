@@ -50,7 +50,7 @@
                             <img src="@(string.IsNullOrWhiteSpace(song.CoverUrl) ? "/Bepop/assets/img/b6.jpg" : song.CoverUrl)" width="42" height="42" class="rounded" />
                             <div class="px-3 flex">
                                 <div class="text-white">
-                                    <a class="text-white js-song-link" data-song-id="@song.Id" href="@Url.Action("SongDetail", "Song", new { id = song.Id, autoPlay = true })">@song.Name</a>
+                                    <a class="text-white js-song-link" data-song-id="@song.Id" href="@Url.Action("SongDetail", "Discovery", new { id = song.Id, autoPlay = true })">@song.Name</a>
                                 </div>
                                 <small class="text-muted">@(song.Album?.Name ?? "-")</small>
                             </div>

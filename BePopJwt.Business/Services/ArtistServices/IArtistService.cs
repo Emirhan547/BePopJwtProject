@@ -11,8 +11,8 @@ namespace BePopJwt.Business.Services.ArtistServices
     {
         Task<BaseResult<List<ResultArtistDto>>> GetAllAsync();
         Task<BaseResult<ResultArtistDto>> GetByIdAsync(int id);
-        Task<BaseResult<CreateArtistDto>> CreateAsync(CreateArtistDto createArtistDto);
-        Task<BaseResult<UpdateArtistDto>> UpdateAsync(UpdateArtistDto updateArtistDto);
+        Task<BaseResult<ResultArtistDto>> CreateAsync(CreateArtistDto createArtistDto);
+        Task<BaseResult<ResultArtistDto>> UpdateAsync(UpdateArtistDto updateArtistDto);
         Task<BaseResult<bool>>DeleteAsync(int id);
         Task<BaseResult<List<ResultArtistWithAlbumDto>>> GetArtistsWithAlbumsAsync();
     }

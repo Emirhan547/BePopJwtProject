@@ -17,6 +17,6 @@ public class HistoryController(IApiPlayerService playerService, IUserSessionServ
         var result = await playerService.GetHistoryAsync(session.Token);
         ViewBag.Session = session;
         ViewBag.Error = result.Error;
-        return View("~/Views/Default/History.cshtml", result.History.OrderByDescending(x => x.PlayedAt).ToList());
+        return View("History", result.History.OrderByDescending(x => x.PlayedAt).ToList());
     }
 }

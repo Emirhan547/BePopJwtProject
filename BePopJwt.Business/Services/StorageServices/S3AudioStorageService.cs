@@ -27,7 +27,6 @@ namespace BePopJwt.API.Services.Storage
                 InputStream = stream,
                 ContentType = file.ContentType,
                 AutoCloseStream = true,
-                CannedACL = S3CannedACL.PublicRead // 🔥 KRİTİK
             };
 
             await s3Client.PutObjectAsync(request, cancellationToken);

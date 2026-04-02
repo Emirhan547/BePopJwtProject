@@ -52,6 +52,6 @@ public class AuthController(IApiAuthService authService, IApiPackageService pack
     public IActionResult Logout()
     {
         userSessionService.SignOut();
-        return RedirectToAction("Index", "Default");
+        return RedirectToAction("Index", "Home");
     }
 }

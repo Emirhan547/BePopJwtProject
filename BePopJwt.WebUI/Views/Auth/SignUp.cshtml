@@ -4,32 +4,138 @@
     Layout = null;
 }
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="utf-8" />
+    <title>Signup | Bepop</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="~/Bepop/libs/slick-carousel/slick/slick.css" />
+    <link rel="stylesheet" href="~/Bepop/libs/slick-carousel/slick/slick-theme.css" />
     <link rel="stylesheet" href="~/Bepop/assets/css/bootstrap.css" />
     <link rel="stylesheet" href="~/Bepop/assets/css/theme.css" />
+    <link rel="stylesheet" href="~/Bepop/assets/css/style.css" />
 </head>
+
 <body class="layout-row bg-dark">
-    <div class="container py-5 text-white" style="max-width:640px;">
-        <h3>Sign Up</h3>
-        @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
-        {
-            <div class="alert alert-danger">@Model.ErrorMessage</div>
-        }
-        <form asp-action="SignUp" method="post">
-            <input asp-for="Request.UserName" class="form-control mb-2" placeholder="Username" />
-            <input asp-for="Request.DisplayName" class="form-control mb-2" placeholder="Display Name" />
-            <input asp-for="Request.Email" class="form-control mb-2" placeholder="Email" />
-            <input asp-for="Request.Password" type="password" class="form-control mb-2" placeholder="Password" />
-            <select asp-for="Request.PackageId" class="form-control mb-3">
-                @foreach (var package in Model.Packages.OrderBy(p => p.Level))
-                {
-                    <option value="@package.Id">@package.Name (Seviye @package.Level)</option>
-                }
-            </select>
-            <button class="btn btn-primary" type="submit">Kayıt Ol</button>
-            <a asp-action="SignIn" class="btn btn-link">Girişe Dön</a>
-        </form>
-    </div></body>
+    <div class="d-flex flex-column flex">
+        <div class="row no-gutters h-100">
+
+            <!-- LEFT -->
+            <div class="col-md-6 bg-dark bg-img"
+                 style="background-image:url('/Bepop/assets/img/b7.jpg')">
+
+                <div class="p-4 p-md-5 d-flex flex-column h-100">
+                    <h4 class="mb-3 text-white">Bepop</h4>
+                    <div class="text-fade">Music Web Application</div>
+
+                    <div class="flex"></div>
+
+                    <div class="d-flex text-sm text-fade">
+                        <a href="#" class="text-white">About</a>
+                        <span class="flex"></span>
+                        <a href="#" class="text-white mx-1">Terms</a>
+                        <a href="#" class="text-white mx-1">Policy</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RIGHT -->
+            <div class="col-md-6" id="content-body">
+                <div class="p-4 p-md-5">
+
+                    <h5>Welcome to Bepop</h5>
+                    <p>
+                        <small class="text-muted">Create your account</small>
+                    </p>
+
+                    <!-- ERROR -->
+                    @if (!string.IsNullOrWhiteSpace(Model?.ErrorMessage))
+                    {
+                        <div class="alert alert-danger">
+                            @Model.ErrorMessage
+                        </div>
+                    }
+
+                    <!-- FORM -->
+                    <form asp-action="SignUp" method="post">
+
+                        <div class="form-group">
+                            <input asp-for="Request.UserName"
+                                   class="form-control"
+                                   placeholder="Username" />
+                        </div>
+
+                        <div class="form-group">
+                            <input asp-for="Request.DisplayName"
+                                   class="form-control"
+                                   placeholder="Display Name" />
+                        </div>
+
+                        <div class="form-group">
+                            <input asp-for="Request.Email"
+                                   class="form-control"
+                                   placeholder="Email" />
+                        </div>
+
+                        <div class="form-group">
+                            <input asp-for="Request.Password"
+                                   type="password"
+                                   class="form-control"
+                                   placeholder="Password" />
+                        </div>
+
+                        <!-- PACKAGE -->
+                        <div class="form-group">
+                            <select asp-for="Request.PackageId" class="form-control">
+                                @foreach (var package in Model.Packages.OrderBy(p => p.Level))
+                                {
+                                    <option value="@package.Id">
+                                        @package.Name (Seviye @package.Level)
+                                    </option>
+                                }
+                            </select>
+                        </div>
+
+                        <div class="mb-3 text-sm">
+                            <span class="text-muted">
+                                By clicking Sign Up, I agree to the
+                            </span>
+                            <a href="#">Terms of service</a>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary mb-4">
+                            Kayıt Ol
+                        </button>
+
+                        <div>
+                            Zaten hesabın var mı?
+                            <a asp-action="SignIn" class="text-primary _600">
+                                Giriş Yap
+                            </a>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- JS -->
+    <script src="~/Bepop/libs/jquery/dist/jquery.min.js"></script>
+    <script src="~/Bepop/libs/popper.js/dist/umd/popper.min.js"></script>
+    <script src="~/Bepop/libs/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script src="~/Bepop/libs/pjax/pjax.min.js"></script>
+    <script src="~/Bepop/assets/js/ajax.js"></script>
+    <script src="~/Bepop/assets/js/lazyload.config.js"></script>
+    <script src="~/Bepop/assets/js/lazyload.js"></script>
+    <script src="~/Bepop/assets/js/plugin.js"></script>
+    <script src="~/Bepop/libs/scrollreveal/dist/scrollreveal.min.js"></script>
+    <script src="~/Bepop/libs/slick-carousel/slick/slick.min.js"></script>
+    <script src="~/Bepop/libs/feather-icons/dist/feather.min.js"></script>
+    <script src="~/Bepop/assets/js/theme.js"></script>
+
+</body>
 </html>
