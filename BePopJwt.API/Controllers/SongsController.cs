@@ -1,6 +1,7 @@
 ﻿using BePopJwt.Business.Dtos.AlbumDtos;
 using BePopJwt.Business.Dtos.SongDtos;
 using BePopJwt.Business.Services.SongServices;
+using BePopJwt.Business.Services.StorageServices;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,7 +9,7 @@ namespace BePopJwt.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class SongsController(ISongService _songService) : ControllerBase
+    public class SongsController(ISongService _songService, IAudioStorageService audioStorageService) : ControllerBase
     {
         [HttpGet]
         public async Task<IActionResult> GetAll()
@@ -53,6 +54,35 @@ namespace BePopJwt.API.Controllers
         {
             var result = await _songService.GetByIdAsync(id);
             return result.IsSuccess ? Ok(result) : BadRequest(result);
+        }
+        [HttpPost("upload-audio")]
+        public async Task<IActionResult> UploadAudio([FromForm] IFormFile file)
+        {
+            if (file is null || file.Length == 0)
+            {
+                return BadRequest(new { ok = false, message = "Dosya boş olamaz." });
+            }
+
+            // 🔒 extension kontrol
+            var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
+            if (extension is not ".mp3" and not ".wav" and not ".m4a")
+            {
+                return BadRequest(new { ok = false, message = "Sadece mp3/wav/m4a yüklenebilir." });
+            }
+
+            // 🔒 mime kontrol
+            if (!file.ContentType.StartsWith("audio/"))
+            {
+                return BadRequest(new { ok = false, message = "Geçersiz dosya tipi." });
+            }
+
+            var uploadedUrl = await audioStorageService.UploadSongAsync(file);
+
+            return Ok(new
+            {
+                ok = true,
+                url = uploadedUrl
+            });
         }
     }
 }

@@ -36,7 +36,9 @@
                                  width="42" height="42" class="rounded" />
 
                             <div class="px-3 flex">
-                                <div class="text-white">@song.Name</div>
+                                <div class="text-white">
+                                    <a class="text-white js-song-link" data-song-id="@song.Id" href="@Url.Action("SongDetail", "Default", new { id = song.Id, autoPlay = true })">@song.Name</a>
+                                </div>
                                 <small class="text-muted">@(song.Album?.Name ?? "-")</small>
                             </div>
 

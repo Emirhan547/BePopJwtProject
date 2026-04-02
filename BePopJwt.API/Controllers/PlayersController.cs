@@ -8,7 +8,7 @@ namespace BePopJwt.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+    
     public class PlayerController(IPlayerService playerService) : ControllerBase
     {
         [HttpGet("songs")]
@@ -34,6 +34,18 @@ namespace BePopJwt.API.Controllers
             }
 
             var result = await playerService.GetRecommendationsAsync(userId.Value, Math.Clamp(take, 1, 20));
+            return result.IsSuccess ? Ok(result) : BadRequest(result);
+        }
+        [HttpGet("recommendations-by-mood")]
+        public async Task<IActionResult> GetMoodRecommendations([FromQuery] string mood, [FromQuery] int take = 6)
+        {
+            var userId = GetUserId();
+            if (userId is null)
+            {
+                return Unauthorized();
+            }
+
+            var result = await playerService.GetMoodBasedRecommendationsAsync(userId.Value, mood, Math.Clamp(take, 1, 20));
             return result.IsSuccess ? Ok(result) : BadRequest(result);
         }
         [HttpGet("state")]

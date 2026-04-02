@@ -13,8 +13,9 @@ namespace BePopJwt.Business.Services.SongServices
         Task<BaseResult<ResultSongDto>> GetByIdAsync(int id);
         Task<BaseResult<ResultSongWithAlbumDto>> GetSongWithAlbumByIdAsync(int id);
         Task<BaseResult<ResultSongDto>> CreateAsync(CreateSongDto createSongDto);
-        Task<BaseResult<ResultSongDto>>UpdateAsync(UpdateSongDto updateSongDto);
+        Task<BaseResult<ResultSongDto>> UpdateAsync(UpdateSongDto updateSongDto);
         Task<BaseResult<bool>> DeleteAsync(int id);
+
 
     }
 }

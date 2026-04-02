@@ -2,6 +2,8 @@
 using BePopJwt.Business.Dtos.PlayerDtos;
 using BePopJwt.Business.Dtos.SongDtos;
 using BePopJwt.Business.Dtos.UserSongHistoryDtos;
+using BePopJwt.Business.Services.OpenAiServices;
+using BePopJwt.Business.Services.RecommendationServices;
 using BePopJwt.DataAccess.Repositories.PlayerRepositories;
 using BePopJwt.DataAccess.Repositories.SongRepositories;
 using BePopJwt.DataAccess.Repositories.UserSongRepositories;
@@ -17,6 +19,8 @@ namespace BePopJwt.Business.Services.PlayerServices
         IPlayerRepository playerRepository,
         ISongRepository songRepository,
         IUserSongHistoryRepository userSongHistoryRepository,
+        IRecommendationService recommendationService,
+        IOpenAiMoodService openAiMoodService,
         UserManager<AppUser> userManager,
         IUnitOfWork unitOfWork) : IPlayerService
     {
@@ -114,13 +118,23 @@ namespace BePopJwt.Business.Services.PlayerServices
                 .Distinct()
                 .ToHashSet();
 
-            var recommendationIds = allHistories
-                .Where(x => similarUserIds.Contains(x.UserId) && !mySongIds.Contains(x.SongId))
-                .GroupBy(x => x.SongId)
-                .OrderByDescending(g => g.Count())
-                .ThenByDescending(g => g.Max(x => x.PlayedAt))
-                .Select(g => g.Key)
-                .ToList();
+            var recommendationIds = (await recommendationService.RecommendSongsForUserAsync(
+                userId,
+                accessibleSongs.Select(x => x.Id).ToList(),
+                mySongIds,
+                take)).ToList();
+
+            if (recommendationIds.Count == 0)
+            {
+                recommendationIds = allHistories
+                    .Where(x => similarUserIds.Contains(x.UserId) && !mySongIds.Contains(x.SongId))
+                    .GroupBy(x => x.SongId)
+                    .OrderByDescending(g => g.Count())
+                    .ThenByDescending(g => g.Max(x => x.PlayedAt))
+                    .Select(g => g.Key)
+                    .Take(take)
+                    .ToList();
+            }
 
             var recommendationSongs = accessibleSongs
                 .Where(x => recommendationIds.Contains(x.Id))
@@ -141,6 +155,85 @@ namespace BePopJwt.Business.Services.PlayerServices
             }
 
             return BaseResult<List<ResultSongWithAlbumDto>>.Success(recommendationSongs.Adapt<List<ResultSongWithAlbumDto>>());
+        }
+        public async Task<BaseResult<List<ResultSongWithAlbumDto>>> GetMoodBasedRecommendationsAsync(int userId, string mood, int take = 6)
+        {
+            var user = await userManager.Users
+                .Include(x => x.Package)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.Id == userId);
+
+            if (user is null)
+            {
+                return BaseResult<List<ResultSongWithAlbumDto>>.Fail("Kullanıcı bulunamadı.");
+            }
+
+            var normalizedMood = (mood ?? string.Empty).Trim().ToLowerInvariant();
+            if (string.IsNullOrWhiteSpace(normalizedMood))
+            {
+                return BaseResult<List<ResultSongWithAlbumDto>>.Fail("Ruh hali boş olamaz.");
+            }
+
+            var accessibleSongs = (await songRepository.GetSongsWithAlbumAsync())
+                .Where(x => (int)x.Level >= user.Package.Level)
+                .ToList();
+
+            if (accessibleSongs.Count == 0)
+            {
+                return BaseResult<List<ResultSongWithAlbumDto>>.Success([]);
+            }
+
+            var localMoodKeywords = new Dictionary<string, string[]>
+            {
+                ["mutlu"] = ["happy", "sun", "dance", "up", "fun", "light", "party", "good", "love", "joy"],
+                ["enerjik"] = ["power", "run", "fire", "rise", "beat", "club", "dance", "drive", "fast", "wild"],
+                ["sakin"] = ["calm", "night", "soft", "dream", "slow", "ocean", "moon", "chill", "blue", "peace"],
+                ["hüzünlü"] = ["sad", "rain", "alone", "broken", "tears", "lost", "dark", "fall", "empty", "cry"],
+                ["odak"] = ["focus", "ambient", "study", "piano", "lofi", "deep", "mind", "flow", "minimal", "cloud"]
+            };
+
+            var selectedKeywords = (await openAiMoodService.GetMoodKeywordsAsync(normalizedMood))
+                .ToList();
+
+            if (selectedKeywords.Count == 0)
+            {
+                selectedKeywords = localMoodKeywords
+                .Where(x => normalizedMood.Contains(x.Key))
+                .SelectMany(x => x.Value)
+                .Distinct()
+                .ToList();
+            }
+
+            if (selectedKeywords.Count == 0)
+            {
+                selectedKeywords = [normalizedMood];
+            }
+
+            var histories = await userSongHistoryRepository.GetHistoriesWithSongAndUserAsync();
+            var popularityLookup = histories
+                .GroupBy(x => x.SongId)
+                .ToDictionary(g => g.Key, g => g.Count());
+
+            var rankedSongs = accessibleSongs
+                .Select(song =>
+                {
+                    var searchText = $"{song.Name} {song.Album?.Name}".ToLowerInvariant();
+                    var moodScore = selectedKeywords.Count(k => searchText.Contains(k)) * 10;
+                    var popularity = popularityLookup.TryGetValue(song.Id, out var count) ? count : 0;
+
+                    return new
+                    {
+                        Song = song,
+                        Score = moodScore + popularity
+                    };
+                })
+                .OrderByDescending(x => x.Score)
+                .ThenBy(x => x.Song.Name)
+                .Take(Math.Clamp(take, 1, 20))
+                .Select(x => x.Song)
+                .ToList();
+
+            return BaseResult<List<ResultSongWithAlbumDto>>.Success(rankedSongs.Adapt<List<ResultSongWithAlbumDto>>());
         }
         public async Task<BaseResult<List<ResultUserSongHistoryWithDetailsDto>>> GetMyHistoryAsync(int userId)
         {

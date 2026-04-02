@@ -9,6 +9,7 @@ namespace BePopJwt.WebUI.Dtos.HomeDtos
         public List<SongWithAlbumDto> AccessibleSongs { get; set; } = [];
         public List<UserHistoryDto> History { get; set; } = [];
         public List<SongWithAlbumDto> RecommendedSongs { get; set; } = [];
+        public string SelectedMood { get; set; } = "mutlu";
         public UserSessionViewModel Session { get; set; } = new();
         public string? ErrorMessage { get; set; }
     }

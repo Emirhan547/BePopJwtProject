@@ -93,8 +93,8 @@ public class DefaultController(IApiCatalogService catalogService, IApiPlayerServ
         ViewBag.Session = session;
         return View(songs.OrderBy(s => s.Level).ThenBy(s => s.Name).ToList());
     }
-
-    public async Task<IActionResult> Discover()
+    
+    public async Task<IActionResult> Discover(string mood = "mutlu")
     {
         var session = userSessionService.GetCurrent();
         if (!session.IsAuthenticated || string.IsNullOrWhiteSpace(session.Token))
@@ -109,17 +109,33 @@ public class DefaultController(IApiCatalogService catalogService, IApiPlayerServ
         var songsResult = await playerService.GetAccessibleSongsAsync(session.Token);
         var historyResult = await playerService.GetHistoryAsync(session.Token);
 
-        var recommendationsResult = await playerService.GetRecommendationsAsync(session.Token, 8);
-        return View(new DiscoverViewModel
+        var recommendationsResult = await playerService.GetMoodRecommendationsAsync(session.Token, mood, 8); return View(new DiscoverViewModel
         {
             Session = session,
             AccessibleSongs = songsResult.Songs,
             History = historyResult.History,
             RecommendedSongs = recommendationsResult.Songs,
+            SelectedMood = mood,
             ErrorMessage = songsResult.Error ?? historyResult.Error ?? recommendationsResult.Error
         });
     }
+    public async Task<IActionResult> SongDetail(int id, bool autoPlay = false)
+    {
+        var songs = await catalogService.GetSongsWithAlbumAsync();
+        var song = songs.FirstOrDefault(x => x.Id == id);
+        if (song is null)
+        {
+            return RedirectToAction(nameof(Discover));
+        }
 
+        ViewBag.Session = userSessionService.GetCurrent();
+        ViewBag.RelatedSongs = songs
+            .Where(x => x.Id != id && x.Album?.Id == song.Album?.Id)
+            .Take(6)
+            .ToList();
+        ViewBag.AutoPlay = autoPlay;
+        return View(song);
+    }
     public async Task<IActionResult> History()
     {
         var session = userSessionService.GetCurrent();

@@ -1,5 +1,6 @@
 ﻿using BePopJwt.Entity.Entities;
 using BePopJwt.Entity.Enums;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -19,6 +20,7 @@ namespace BePopJwt.Business.Dtos.SongDtos
         public PackageLevel Level { get; set; }
 
         public int AlbumId { get; set; }
-        
+
+
     }
 }

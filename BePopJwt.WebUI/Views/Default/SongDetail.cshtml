@@ -1,0 +1,81 @@
+﻿@using BePopJwt.WebUI.Dtos.SongDtos
+@model SongWithAlbumDto
+@{
+    ViewData["Title"] = "Song Detail";
+    Layout = "~/Views/Shared/_UILayout.cshtml";
+    var relatedSongs = ViewBag.RelatedSongs as List<SongWithAlbumDto> ?? new List<SongWithAlbumDto>();
+    var autoPlay = (bool?)ViewBag.AutoPlay ?? false;
+}
+
+<div id="main" class="layout-row flex">
+    <div id="content" class="flex">
+        <div class="page-content page-container" id="page-content">
+            <div class="padding sr">
+                <div class="row">
+                    <div class="col-lg-4">
+                        <img src="@(string.IsNullOrWhiteSpace(Model.CoverUrl) ? "/Bepop/assets/img/b5.jpg" : Model.CoverUrl)" class="w-100 rounded shadow" alt="@Model.Name" />
+                    </div>
+                    <div class="col-lg-8">
+                        <p class="text-muted mb-1">NOW PLAYING</p>
+                        <h1 class="display-4 text-white font-weight-bold">@Model.Name</h1>
+                        <h5 class="text-muted">@(Model.Album?.Name ?? "Single")</h5>
+                        <p class="mt-3">
+                            <span class="badge badge-pill badge-primary">Premium @Model.Level</span>
+                            <span class="badge badge-pill badge-secondary">@(Model.Duration / 60):@(Model.Duration % 60).ToString("00")</span>
+                        </p>
+
+                        <div class="mt-4 p-3 b-a rounded bg-dark">
+                            <audio id="detail-player" controls class="w-100"></audio>
+                            <div class="mt-2">
+                                <button id="play-song-btn" class="btn btn-primary">Play</button>
+                                <a href="@Url.Action("Discover", "Default")" class="btn btn-outline-light">Discover'a Dön</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mt-5">
+                    <div class="col-lg-12">
+                        <div class="p-3 b-a rounded">
+                            <h6 class="text-highlight">Benzer Şarkılar</h6>
+                            @foreach (var song in relatedSongs)
+                            {
+                                <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                                    <a class="text-white js-song-link" data-song-id="@song.Id" href="@Url.Action("SongDetail", "Default", new { id = song.Id, autoPlay = true })">@song.Name</a>
+                                    <small class="text-muted">@(song.Duration / 60):@(song.Duration % 60).ToString("00")</small>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    (function () {
+        const player = document.getElementById('detail-player');
+        const playBtn = document.getElementById('play-song-btn');
+        const songId = @Model.Id;
+        const shouldAutoPlay = @autoPlay.ToString().ToLowerInvariant();
+
+        async function playSong() {
+            const response = await fetch(`@Url.Action("SongSource", "Default")?songId=${songId}`);
+            const data = await response.json();
+
+            if (!response.ok || !data.ok || !data.source) {
+                return;
+            }
+
+            player.src = data.source;
+            await player.play();
+        }
+
+        playBtn.addEventListener('click', playSong);
+
+        if (shouldAutoPlay) {
+            playSong();
+        }
+    })();
+</script>

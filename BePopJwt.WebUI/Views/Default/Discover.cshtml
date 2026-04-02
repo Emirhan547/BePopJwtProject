@@ -27,12 +27,24 @@
                     }
 
                     <h5 class="mt-5 text-highlight">Önerilen Şarkılar</h5>
-                    <div class="row row-sm">
+                    <form method="get" class="row mb-3">
+                        <div class="col-md-4">
+                            <label class="text-muted">Ruh halin</label>
+                            <select name="mood" class="form-control" onchange="this.form.submit()">
+                                <option value="mutlu" selected="@(Model.SelectedMood == "mutlu")">Mutlu</option>
+                                <option value="enerjik" selected="@(Model.SelectedMood == "enerjik")">Enerjik</option>
+                                <option value="sakin" selected="@(Model.SelectedMood == "sakin")">Sakin</option>
+                                <option value="hüzünlü" selected="@(Model.SelectedMood == "hüzünlü")">Hüzünlü</option>
+                                <option value="odak" selected="@(Model.SelectedMood == "odak")">Odak</option>
+                            </select>
+                        </div>
+                    </form>
+                    <div class="row row-sm" id="recommendation-grid">
                         @foreach (var song in Model.RecommendedSongs)
                         {
-                            <div class="col-6 col-md-4 col-lg-3 py-2">
+                            <div class="col-6 col-md-4 col-lg-3 py-2 recommendation-card">
                                 <div class="list-item r box">
-                                    <div class="media"><a class="media-content" style="background-image:url(@(string.IsNullOrWhiteSpace(song.CoverUrl) ? "/Bepop/assets/img/b2.jpg" : song.CoverUrl))"></a></div>
+                                    <div class="media"><a data-song-id="@song.Id" href="@Url.Action("SongDetail", "Default", new { id = song.Id, autoPlay = true })" class="media-content js-song-link" style="background-image:url(@(string.IsNullOrWhiteSpace(song.CoverUrl) ? "/Bepop/assets/img/b2.jpg" : song.CoverUrl)"></a></div>
                                     <div class="list-content p-2">
                                         <div class="list-body"><span class="list-title text-white">@song.Name</span><div class="text-muted text-sm">@(song.Album?.Name ?? "-")</div></div>
                                     </div>
@@ -63,7 +75,7 @@
                                 <div class="d-flex b-a rounded p-2 align-items-center">
                                     <img src="@(string.IsNullOrWhiteSpace(song.CoverUrl) ? "/Bepop/assets/img/b1.jpg" : song.CoverUrl)" width="56" height="56" class="rounded" />
                                     <div class="px-3 flex">
-                                        <div class="text-white">@song.Name</div>
+                                        <div class="text-white"><a class="text-white js-song-link" data-song-id="@song.Id" href="@Url.Action("SongDetail", "Default", new { id = song.Id, autoPlay = true })">@song.Name</a></div>
                                         <small class="text-muted">@(song.Album?.Name ?? "-")</small>
                                         <div><span class="badge badge-secondary">Şarkı @song.Level</span></div>
                                     </div>
@@ -94,7 +106,32 @@
         const visibleCount = document.getElementById('visible-count');
         const cards = Array.from(document.querySelectorAll('.song-card'));
         const historySongIds = new Set(@Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.History.Select(x => x.SongId).Distinct().ToList())));
+        const recommendationGrid = document.getElementById('recommendation-grid');
 
+        function renderRecommendations(songs) {
+            if (!recommendationGrid) return;
+            recommendationGrid.innerHTML = (songs || []).map(song => {
+                const cover = song.coverUrl || '/Bepop/assets/img/b2.jpg';
+                const albumName = (song.album && song.album.name) ? song.album.name : '-';
+                return `<div class="col-6 col-md-4 col-lg-3 py-2 recommendation-card">
+                    <div class="list-item r box">
+                        <div class="media"><a class="media-content" style="background-image:url(${cover})"></a></div>
+                        <div class="list-content p-2">
+                            <div class="list-body"><span class="list-title text-white">${song.name}</span><div class="text-muted text-sm">${albumName}</div></div>
+                        </div>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        async function refreshRecommendations() {
+            const response = await fetch(`@Url.Action("Recommendations", "Default")?take=8`);
+            if (!response.ok) return;
+            const data = await response.json();
+            if (data.ok && Array.isArray(data.songs)) {
+                renderRecommendations(data.songs);
+            }
+        }
         let favorites = new Set(JSON.parse(localStorage.getItem('bePopFavorites') || '[]'));
         let currentSongId = 0;
         let startedAt = null;
@@ -177,11 +214,13 @@
                 historySongIds.add(currentSongId);
                 status.textContent = 'Dinleme kaydı alındı.';
                 applyFilters();
+                await refreshRecommendations();
             } else {
                 status.textContent = 'Dinleme kaydı alınamadı.';
             }
         }
         syncFavoriteButtons();
         applyFilters();
+        refreshRecommendations();
     })();
 </script>

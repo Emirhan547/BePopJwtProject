@@ -49,11 +49,13 @@
                         <div class="d-flex align-items-center py-2 b-b">
                             <img src="@(string.IsNullOrWhiteSpace(song.CoverUrl) ? "/Bepop/assets/img/b6.jpg" : song.CoverUrl)" width="42" height="42" class="rounded" />
                             <div class="px-3 flex">
-                                <div class="text-white">@song.Name</div>
+                                <div class="text-white">
+                                    <a class="text-white js-song-link" data-song-id="@song.Id" href="@Url.Action("SongDetail", "Default", new { id = song.Id, autoPlay = true })">@song.Name</a>
+                                </div>
                                 <small class="text-muted">@(song.Album?.Name ?? "-")</small>
                             </div>
                             <span class="badge badge-secondary mr-2">Şarkı @song.Level</span>
-                            <button class="btn btn-sm @(isAllowed ? "btn-primary artist-play-btn" : "btn-outline-warning restricted-song-btn")" data-song-id="@song.Id">
+                            <button class="btn btn-sm @(isAllowed ? "btn-primary artist-play-btn" : "btn-outline-warning restricted-song-btn")" data-song-id="@song.Id" data-packages-url="@Url.Action("Packages", "Default")">
                                 @(isAllowed ? "Play" : "Paketi Yükselt")
                             </button>
                         </div>
@@ -68,27 +70,3 @@
         </div>
     </div>
 </div>
-<script>
-    (function () {
-        const player = document.getElementById('artist-player');
-
-        document.addEventListener('click', async function (e) {
-            const playButton = e.target.closest('.artist-play-btn');
-            if (playButton) {
-                const songId = Number(playButton.dataset.songId || 0);
-                if (!songId) return;
-                const sourceResponse = await fetch(`@Url.Action("SongSource", "Default")?songId=${songId}`);
-                const sourceData = await sourceResponse.json();
-                if (!sourceResponse.ok || !sourceData.ok || !sourceData.source) return;
-                player.src = sourceData.source;
-                player.play();
-                return;
-            }
-
-            const restricted = e.target.closest('.restricted-song-btn');
-            if (restricted) {
-                window.location.href = '@Url.Action("Packages", "Default")';
-            }
-        });
-    })();
-</script>

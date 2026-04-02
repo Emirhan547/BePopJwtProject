@@ -1,4 +1,8 @@
+using Amazon;
+using Amazon.S3;
+using BePopJwt.API.Services.Storage;
 using BePopJwt.Business.Extensions;
+using BePopJwt.Business.Services.StorageServices;
 using BePopJwt.DataAccess.Context;
 using BePopJwt.DataAccess.Extensions;
 using BePopJwt.DataAccess.Interceptors;
@@ -48,10 +52,20 @@ builder.Services
     });
 
 builder.Services.AddAuthorization();
+builder.Services.AddSingleton<IAmazonS3>(sp =>
+{
+    var config = sp.GetRequiredService<IConfiguration>();
+
+    return new AmazonS3Client(
+        config["AWS:AccessKey"],
+        config["AWS:SecretKey"],
+        RegionEndpoint.GetBySystemName(config["AWS:Region"])
+    );
+});
+builder.Services.AddScoped<IAudioStorageService, S3AudioStorageService>();
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
-
 var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
