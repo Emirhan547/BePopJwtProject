@@ -109,7 +109,8 @@ public class DefaultController(IApiCatalogService catalogService, IApiPlayerServ
         var songsResult = await playerService.GetAccessibleSongsAsync(session.Token);
         var historyResult = await playerService.GetHistoryAsync(session.Token);
 
-        var recommendationsResult = await playerService.GetMoodRecommendationsAsync(session.Token, mood, 8); return View(new DiscoverViewModel
+        var recommendationsResult = await playerService.GetMoodRecommendationsAsync(session.Token, mood, 8);
+        return View(new DiscoverViewModel
         {
             Session = session,
             AccessibleSongs = songsResult.Songs,
@@ -118,6 +119,34 @@ public class DefaultController(IApiCatalogService catalogService, IApiPlayerServ
             SelectedMood = mood,
             ErrorMessage = songsResult.Error ?? historyResult.Error ?? recommendationsResult.Error
         });
+    }
+    [HttpGet]
+    public async Task<IActionResult> Recommendations(int take = 8)
+    {
+        var session = userSessionService.GetCurrent();
+        if (!session.IsAuthenticated || string.IsNullOrWhiteSpace(session.Token))
+        {
+            return Unauthorized(new { ok = false, message = "Login required." });
+        }
+
+        var result = await playerService.GetRecommendationsAsync(session.Token, Math.Clamp(take, 1, 20));
+        return result.IsSuccess
+            ? Ok(new { ok = true, songs = result.Songs })
+            : BadRequest(new { ok = false, message = result.Error });
+    }
+    [HttpGet]
+    public async Task<IActionResult> PromptRecommendations(string prompt, int take = 8)
+    {
+        var session = userSessionService.GetCurrent();
+        if (!session.IsAuthenticated || string.IsNullOrWhiteSpace(session.Token))
+        {
+            return Unauthorized(new { ok = false, message = "Login required." });
+        }
+
+        var result = await playerService.GetPromptRecommendationsAsync(session.Token, prompt, Math.Clamp(take, 1, 20));
+        return result.IsSuccess
+            ? Ok(new { ok = true, songs = result.Songs })
+            : BadRequest(new { ok = false, message = result.Error });
     }
     public async Task<IActionResult> SongDetail(int id, bool autoPlay = false)
     {

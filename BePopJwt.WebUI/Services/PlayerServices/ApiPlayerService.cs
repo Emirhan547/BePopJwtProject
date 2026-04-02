@@ -65,6 +65,21 @@ namespace BePopJwt.WebUI.Services.PlayerServices
                 ? (true, result.Data ?? [], null)
                 : (false, [], result.Errors?.FirstOrDefault()?.ErrorMessage ?? "Ruh haline göre öneriler yüklenemedi.");
         }
+        public async Task<(bool IsSuccess, List<SongWithAlbumDto> Songs, string? Error)> GetPromptRecommendationsAsync(string jwtToken, string prompt, int take = 8)
+        {
+            var encodedPrompt = Uri.EscapeDataString(prompt ?? string.Empty);
+            var response = await SendWithAuthAsync(jwtToken, HttpMethod.Get, $"api/player/recommendations-by-prompt?prompt={encodedPrompt}&take={Math.Clamp(take, 1, 20)}");
+            var result = await response.Content.ReadFromJsonAsync<BaseResultDto<List<SongWithAlbumDto>>>();
+
+            if (result is null)
+            {
+                return (false, [], "Prompt recommendations response could not be parsed.");
+            }
+
+            return result.IsSuccess
+                ? (true, result.Data ?? [], null)
+                : (false, [], result.Errors?.FirstOrDefault()?.ErrorMessage ?? "Prompta göre öneriler yüklenemedi.");
+        }
         public async Task<(bool IsSuccess, List<UserHistoryDto> History, string? Error)> GetHistoryAsync(string jwtToken)
         {
             var response = await SendWithAuthAsync(jwtToken, HttpMethod.Get, "api/player/history");

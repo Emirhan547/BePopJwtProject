@@ -11,5 +11,6 @@ namespace BePopJwt.WebUI.Services.PlayerServices
         Task<(bool IsSuccess, List<SongWithAlbumDto> Songs, string? Error)> GetRecommendationsAsync(string jwtToken, int take = 6);
         Task<(bool IsSuccess, List<SongWithAlbumDto> Songs, string? Error)> GetMoodRecommendationsAsync(string jwtToken, string mood, int take = 6);
         Task<(bool IsSuccess, string? Source, string? Error)> GetSongSourceAsync(string jwtToken, int songId);
+        Task<(bool IsSuccess, List<SongWithAlbumDto> Songs, string? Error)> GetPromptRecommendationsAsync(string jwtToken, string prompt, int take = 8);
     }
 }

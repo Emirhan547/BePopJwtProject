@@ -209,29 +209,50 @@ namespace BePopJwt.Business.Services.PlayerServices
                 selectedKeywords = [normalizedMood];
             }
 
-            var histories = await userSongHistoryRepository.GetHistoriesWithSongAndUserAsync();
-            var popularityLookup = histories
-                .GroupBy(x => x.SongId)
-                .ToDictionary(g => g.Key, g => g.Count());
+            var rankedSongs = await RankSongsByKeywordsAsync(accessibleSongs, selectedKeywords, Math.Clamp(take, 1, 20));
 
-            var rankedSongs = accessibleSongs
-                .Select(song =>
-                {
-                    var searchText = $"{song.Name} {song.Album?.Name}".ToLowerInvariant();
-                    var moodScore = selectedKeywords.Count(k => searchText.Contains(k)) * 10;
-                    var popularity = popularityLookup.TryGetValue(song.Id, out var count) ? count : 0;
+            return BaseResult<List<ResultSongWithAlbumDto>>.Success(rankedSongs.Adapt<List<ResultSongWithAlbumDto>>());
+        }
+        public async Task<BaseResult<List<ResultSongWithAlbumDto>>> GetPromptBasedRecommendationsAsync(int userId, string prompt, int take = 8)
+        {
+            var user = await userManager.Users
+                .Include(x => x.Package)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.Id == userId);
 
-                    return new
-                    {
-                        Song = song,
-                        Score = moodScore + popularity
-                    };
-                })
-                .OrderByDescending(x => x.Score)
-                .ThenBy(x => x.Song.Name)
-                .Take(Math.Clamp(take, 1, 20))
-                .Select(x => x.Song)
+            if (user is null)
+            {
+                return BaseResult<List<ResultSongWithAlbumDto>>.Fail("Kullanıcı bulunamadı.");
+            }
+
+            var normalizedPrompt = (prompt ?? string.Empty).Trim().ToLowerInvariant();
+            if (string.IsNullOrWhiteSpace(normalizedPrompt))
+            {
+                return BaseResult<List<ResultSongWithAlbumDto>>.Fail("Prompt boş olamaz.");
+            }
+
+            var accessibleSongs = (await songRepository.GetSongsWithAlbumAsync())
+                .Where(x => (int)x.Level >= user.Package.Level)
                 .ToList();
+
+            if (accessibleSongs.Count == 0)
+            {
+                return BaseResult<List<ResultSongWithAlbumDto>>.Success([]);
+            }
+
+            var selectedKeywords = (await openAiMoodService.GetPromptKeywordsAsync(normalizedPrompt))
+                .ToList();
+            if (selectedKeywords.Count == 0)
+            {
+                selectedKeywords = BuildPromptFallbackKeywords(normalizedPrompt).ToList();
+            }
+
+            if (selectedKeywords.Count == 0)
+            {
+                selectedKeywords = [normalizedPrompt];
+            }
+
+            var rankedSongs = await RankSongsByKeywordsAsync(accessibleSongs, selectedKeywords, Math.Clamp(take, 1, 20));
 
             return BaseResult<List<ResultSongWithAlbumDto>>.Success(rankedSongs.Adapt<List<ResultSongWithAlbumDto>>());
         }
@@ -317,6 +338,51 @@ namespace BePopJwt.Business.Services.PlayerServices
             return result > 0
                 ? BaseResult<ResultUserSongHistoryDto>.Success(history.Adapt<ResultUserSongHistoryDto>())
                 : BaseResult<ResultUserSongHistoryDto>.Fail("Dinleme geçmişi kaydedilemedi.");
+        }
+        private async Task<List<Song>> RankSongsByKeywordsAsync(List<Song> accessibleSongs, List<string> selectedKeywords, int take)
+        {
+            var histories = await userSongHistoryRepository.GetHistoriesWithSongAndUserAsync();
+            var popularityLookup = histories
+                .GroupBy(x => x.SongId)
+                .ToDictionary(g => g.Key, g => g.Count());
+
+            return accessibleSongs
+                .Select(song =>
+                {
+                    var searchText = $"{song.Name} {song.Album?.Name}".ToLowerInvariant();
+                    var moodScore = selectedKeywords.Count(k => searchText.Contains(k)) * 10;
+                    var popularity = popularityLookup.TryGetValue(song.Id, out var count) ? count : 0;
+
+                    return new
+                    {
+                        Song = song,
+                        Score = moodScore + popularity
+                    };
+                })
+                .OrderByDescending(x => x.Score)
+                .ThenBy(x => x.Song.Name)
+                .Take(take)
+                .Select(x => x.Song)
+                .ToList();
+        }
+
+        private static IEnumerable<string> BuildPromptFallbackKeywords(string normalizedPrompt)
+        {
+            var map = new Dictionary<string, string[]>
+            {
+                ["mutlu"] = ["happy", "joy", "party", "light", "upbeat"],
+                ["enerjik"] = ["power", "fire", "dance", "fast", "drive"],
+                ["sakin"] = ["calm", "chill", "soft", "slow", "ambient"],
+                ["hüzün"] = ["sad", "alone", "rain", "dark", "tears"],
+                ["odak"] = ["focus", "study", "lofi", "minimal", "flow"],
+                ["romantik"] = ["love", "heart", "sweet", "moon", "slow"],
+                ["gece"] = ["night", "dark", "city", "neon", "moon"]
+            };
+
+            return map
+                .Where(x => normalizedPrompt.Contains(x.Key))
+                .SelectMany(x => x.Value)
+                .Distinct();
         }
     }
 }

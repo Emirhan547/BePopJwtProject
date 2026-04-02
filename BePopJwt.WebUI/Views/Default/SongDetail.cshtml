@@ -21,7 +21,7 @@
                         <h5 class="text-muted">@(Model.Album?.Name ?? "Single")</h5>
                         <p class="mt-3">
                             <span class="badge badge-pill badge-primary">Premium @Model.Level</span>
-                            <span class="badge badge-pill badge-secondary">@(Model.Duration / 60):@(Model.Duration % 60).ToString("00")</span>
+                            <span class="badge badge-pill badge-secondary">@(Model.Duration / 60):@(Model.Duration % 60)</span>
                         </p>
 
                         <div class="mt-4 p-3 b-a rounded bg-dark">
@@ -42,7 +42,7 @@
                             {
                                 <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
                                     <a class="text-white js-song-link" data-song-id="@song.Id" href="@Url.Action("SongDetail", "Default", new { id = song.Id, autoPlay = true })">@song.Name</a>
-                                    <small class="text-muted">@(song.Duration / 60):@(song.Duration % 60).ToString("00")</small>
+                                    <small class="text-muted">@(song.Duration / 60):@(song.Duration % 60)</small>
                                 </div>
                             }
                         </div>

@@ -13,6 +13,7 @@ namespace BePopJwt.Business.Services.PlayerServices
         Task<BaseResult<List<ResultSongWithAlbumDto>>> GetAccessibleSongsAsync(int userId);
         Task<BaseResult<List<ResultSongWithAlbumDto>>> GetRecommendationsAsync(int userId, int take = 6);
         Task<BaseResult<List<ResultSongWithAlbumDto>>> GetMoodBasedRecommendationsAsync(int userId, string mood, int take = 6);
+        Task<BaseResult<List<ResultSongWithAlbumDto>>> GetPromptBasedRecommendationsAsync(int userId, string prompt, int take = 8);
         Task<BaseResult<ResultUserSongHistoryDto>> PlaySongAsync(int userId, PlaySongRequestDto request);
         Task<BaseResult<List<ResultUserSongHistoryWithDetailsDto>>> GetMyHistoryAsync(int userId);
         Task<BaseResult<ResultPlayerStateDto>> GetPlayerStateAsync(int userId);

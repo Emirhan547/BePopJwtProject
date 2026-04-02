@@ -3,34 +3,107 @@
 @{
     ViewData["Title"] = "Discover";
     Layout = "~/Views/Shared/_UILayout.cshtml";
+    var totalSongs = Model.AccessibleSongs.Count;
+    var listenedCount = Model.History.Select(x => x.SongId).Distinct().Count();
+    var completionRate = totalSongs == 0 ? 0 : (int)Math.Round((double)listenedCount * 100 / totalSongs);
 }
+
+<style>
+    .discover-dashboard {
+        background: radial-gradient(circle at top right, rgba(124, 58, 237, .35), transparent 44%),
+                    radial-gradient(circle at top left, rgba(34, 211, 238, .24), transparent 35%);
+        border: 1px solid rgba(255,255,255,.08);
+        border-radius: 20px;
+        padding: 1.5rem;
+        box-shadow: 0 14px 36px rgba(0, 0, 0, .35);
+    }
+    .metric-card {
+        background: rgba(255,255,255,.04);
+        border: 1px solid rgba(255,255,255,.1);
+        border-radius: 16px;
+        padding: 1rem;
+        min-height: 112px;
+    }
+    .discover-panel {
+        background: rgba(10, 16, 32, .7);
+        border: 1px solid rgba(255,255,255,.08);
+        border-radius: 16px;
+        padding: 1rem;
+    }
+    .song-card-modern {
+        background: linear-gradient(135deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+        border: 1px solid rgba(255,255,255,.1);
+        border-radius: 14px;
+        transition: all .2s ease;
+    }
+    .song-card-modern:hover {
+        transform: translateY(-2px);
+        border-color: rgba(118, 225, 255, .45);
+        box-shadow: 0 8px 22px rgba(0,0,0,.25);
+    }
+    .recommendation-card .media-content {
+        border-radius: 12px;
+        min-height: 140px;
+        background-size: cover;
+        background-position: center;
+    }
+</style>
+
 <div id="main" class="layout-row flex">
-    <div id="content" class="flex ">
-        <div>
-            <div class="page-content page-container" id="page-content">
-                <div class="padding sr">
-                    <div class="page-hero">
-                        <div class="media bg-media"><div class="media-content" style="background-image:url(/Bepop/assets/img/b9.jpg)"></div></div>
-                        <div class="pos-rlt">
-                            <h2 class="display-3 font-weight-bold text-white">Discover</h2>
-                            <p class="text-muted col-md-8 px-0">Paket seviyene göre erişebileceğin şarkılar ve kişisel öneriler.</p>
-                            @if (Model.Session.IsAuthenticated)
-                            {
-                                <span class="badge badge-pill badge-primary">Paketin: @Model.Session.PackageName (@Model.Session.PackageLevel)</span>
-                            }
+   
+    <div id="content" class="flex">
+        <div class="page-content page-container" id="page-content">
+            <div class="padding sr">
+                <div class="discover-dashboard mb-4">
+                    <div class="d-flex flex-wrap align-items-center justify-content-between mb-3">
+                        <div>
+                            <h2 class="display-4 font-weight-bold text-white mb-1">Discover Dashboard</h2>
+                            <p class="text-muted mb-0">AI destekli öneriler + paket seviyene uygun kişisel müzik alanın.</p>
                         </div>
+                        @if (Model.Session.IsAuthenticated)
+                        {
+                            <span class="badge badge-pill badge-primary px-3 py-2">@Model.Session.PackageName • Seviye @Model.Session.PackageLevel</span>
+                        }
                     </div>
 
-                    @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
-                    {
-                        <div class="alert alert-warning mt-3">@Model.ErrorMessage</div>
-                    }
+                    <div class="row row-sm">
+                        <div class="col-12 col-md-4 py-2">
+                            <div class="metric-card">
+                                <small class="text-muted">Toplam Erişilebilir Şarkı</small>
+                                <div class="h2 text-white mb-0">@totalSongs</div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4 py-2">
+                            <div class="metric-card">
+                                <small class="text-muted">Dinlediklerin</small>
+                                <div class="h2 text-white mb-0">@listenedCount</div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4 py-2">
+                            <div class="metric-card">
+                                <small class="text-muted">Keşif Tamamlama</small>
+                                <div class="h2 text-white mb-0">%@completionRate</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-                    <h5 class="mt-5 text-highlight">Önerilen Şarkılar</h5>
-                    <form method="get" class="row mb-3">
-                        <div class="col-md-4">
-                            <label class="text-muted">Ruh halin</label>
-                            <select name="mood" class="form-control" onchange="this.form.submit()">
+                    
+                @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+                {
+                    <div class="alert alert-warning mt-3">@Model.ErrorMessage</div>
+                }
+
+                <div class="discover-panel mb-4">
+                    <h5 class="text-highlight mb-3">Prompt'tan Ruh Hali Analizi ile AI Önerileri</h5>
+                    <div class="row row-sm align-items-end">
+                        <div class="col-12 col-lg-8 py-1">
+                            <label class="text-muted">Nasıl hissediyorsun? (örn: "Gece araba sürerken enerjik ama duygusal bir şeyler")</label>
+                            <input id="prompt-input" class="form-control" maxlength="250" placeholder="Promptunu yaz..." />
+                        </div>
+                        <div class="col-6 col-lg-2 py-1">
+                            <label class="text-muted">Fallback Mood</label>
+                            <select id="mood-select" class="form-control">
                                 <option value="mutlu" selected="@(Model.SelectedMood == "mutlu")">Mutlu</option>
                                 <option value="enerjik" selected="@(Model.SelectedMood == "enerjik")">Enerjik</option>
                                 <option value="sakin" selected="@(Model.SelectedMood == "sakin")">Sakin</option>
@@ -38,59 +111,74 @@
                                 <option value="odak" selected="@(Model.SelectedMood == "odak")">Odak</option>
                             </select>
                         </div>
-                    </form>
-                    <div class="row row-sm" id="recommendation-grid">
-                        @foreach (var song in Model.RecommendedSongs)
-                        {
-                            <div class="col-6 col-md-4 col-lg-3 py-2 recommendation-card">
-                                <div class="list-item r box">
-                                    <div class="media"><a data-song-id="@song.Id" href="@Url.Action("SongDetail", "Default", new { id = song.Id, autoPlay = true })" class="media-content js-song-link" style="background-image:url(@(string.IsNullOrWhiteSpace(song.CoverUrl) ? "/Bepop/assets/img/b2.jpg" : song.CoverUrl)"></a></div>
-                                    <div class="list-content p-2">
-                                        <div class="list-body"><span class="list-title text-white">@song.Name</span><div class="text-muted text-sm">@(song.Album?.Name ?? "-")</div></div>
-                                    </div>
-                                </div>
-                            </div>
-                        }
-                    </div>
-                    <div class="row mt-4">
-                        <div class="col-md-4">
-                            <input id="song-search" class="form-control" placeholder="Şarkı veya albüm ara" />
-                        </div>
-                        <div class="col-md-4 mt-2 mt-md-0">
-                            <select id="song-filter" class="form-control">
-                                <option value="all">Tüm şarkılar</option>
-                                <option value="favorites">Sadece favoriler</option>
-                                <option value="unplayed">Henüz dinlemediklerim</option>
-                            </select>
-                        </div>
-                        <div class="col-md-4 mt-2 mt-md-0 text-md-right">
-                            <small class="text-muted">Toplam: <span id="visible-count">0</span> şarkı</small>
+                        <div class="col-6 col-lg-2 py-1">
+                            <button id="prompt-recommend-btn" class="btn btn-primary btn-block">AI Öner</button>
                         </div>
                     </div>
-                    <h5 class="mt-4 text-highlight">Sana Açık Şarkılar</h5>
-                    <div class="row row-sm" id="discover-song-grid">
-                        @foreach (var song in Model.AccessibleSongs)
-                        {
-                            <div class="col-12 col-md-6 py-2 song-card" data-song-id="@song.Id" data-song-name="@song.Name.ToLowerInvariant()" data-album-name="@(song.Album?.Name?.ToLowerInvariant() ?? "")">
-                                <div class="d-flex b-a rounded p-2 align-items-center">
-                                    <img src="@(string.IsNullOrWhiteSpace(song.CoverUrl) ? "/Bepop/assets/img/b1.jpg" : song.CoverUrl)" width="56" height="56" class="rounded" />
-                                    <div class="px-3 flex">
-                                        <div class="text-white"><a class="text-white js-song-link" data-song-id="@song.Id" href="@Url.Action("SongDetail", "Default", new { id = song.Id, autoPlay = true })">@song.Name</a></div>
-                                        <small class="text-muted">@(song.Album?.Name ?? "-")</small>
-                                        <div><span class="badge badge-secondary">Şarkı @song.Level</span></div>
-                                    </div>
-                                    <button class="btn btn-sm btn-outline-warning favorite-btn mr-2" data-song-id="@song.Id">☆</button>
-                                    <button class="btn btn-sm btn-primary play-btn" data-song-id="@song.Id">Play</button>
-                                </div>
-                            </div>
-                        }
-                    </div>
+                    <small id="prompt-feedback" class="text-muted d-block mt-2">Prompt girmezsen seçili mood ile öneri yapılır.</small>
+                </div>
 
-                    <div class="mt-4 p-3 b-a rounded">
-                        <h6 class="text-highlight">Web Player</h6>
-                        <audio id="web-player" controls class="w-100"></audio>
-                        <small class="text-muted" id="player-status">Şarkı seç ve oynat.</small>
+                <h5 class="text-highlight">AI Önerilen Şarkılar</h5>
+                <div class="row row-sm" id="recommendation-grid">
+                    @foreach (var song in Model.RecommendedSongs)
+                    {
+                        <div class="col-6 col-md-4 col-lg-3 py-2 recommendation-card">
+                            <div class="list-item r box song-card-modern">
+                                <div class="media">
+                                    <a data-song-id="@song.Id" href="@Url.Action("SongDetail", "Default", new { id = song.Id, autoPlay = true })" class="media-content js-song-link" style="background-image:url('@(string.IsNullOrWhiteSpace(song.CoverUrl) ? "/Bepop/assets/img/b2.jpg" : song.CoverUrl)')"></a>
+                                </div>
+                                <div class="list-content p-2">
+                                    <div class="list-body">
+                                        <span class="list-title text-white">@song.Name</span>
+                                        <div class="text-muted text-sm">@(song.Album?.Name ?? "-")</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                <div class="row mt-4">
+                    <div class="col-md-4">
+                        <input id="song-search" class="form-control" placeholder="Şarkı veya albüm ara" />
                     </div>
+                    <div class="col-md-4 mt-2 mt-md-0">
+                        <select id="song-filter" class="form-control">
+                            <option value="all">Tüm şarkılar</option>
+                            <option value="favorites">Sadece favoriler</option>
+                            <option value="unplayed">Henüz dinlemediklerim</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4 mt-2 mt-md-0 text-md-right">
+                        <small class="text-muted">Toplam: <span id="visible-count">0</span> şarkı</small>
+                    </div>
+                </div>
+
+                <h5 class="mt-4 text-highlight">Sana Açık Şarkılar</h5>
+                <div class="row row-sm" id="discover-song-grid">
+                    @foreach (var song in Model.AccessibleSongs)
+                    {
+                        <div class="col-12 col-md-6 py-2 song-card" data-song-id="@song.Id" data-song-name="@song.Name.ToLowerInvariant()" data-album-name="@(song.Album?.Name?.ToLowerInvariant() ?? "")">
+                            <div class="d-flex align-items-center p-3 song-card-modern">
+                                <img src="@(string.IsNullOrWhiteSpace(song.CoverUrl) ? "/Bepop/assets/img/b1.jpg" : song.CoverUrl)" width="56" height="56" class="rounded" />
+                                <div class="px-3 flex">
+                                    <div class="text-white"><a class="text-white js-song-link" data-song-id="@song.Id" href="@Url.Action("SongDetail", "Default", new { id = song.Id, autoPlay = true })">@song.Name</a></div>
+                                    <small class="text-muted">@(song.Album?.Name ?? "-")</small>
+                                    <div><span class="badge badge-secondary">Şarkı @song.Level</span></div>
+                                </div>
+                                <button class="btn btn-sm btn-outline-warning favorite-btn mr-2" data-song-id="@song.Id">☆</button>
+                                <button class="btn btn-sm btn-primary play-btn" data-song-id="@song.Id">Play</button>
+                            </div>
+                      
+                        </div>
+                    }
+                </div>
+
+                    
+                <div class="mt-4 p-3 discover-panel">
+                    <h6 class="text-highlight">Web Player</h6>
+                    <audio id="web-player" controls class="w-100"></audio>
+                    <small class="text-muted" id="player-status">Şarkı seç ve oynat.</small>
                 </div>
             </div>
         </div>
@@ -107,21 +195,29 @@
         const cards = Array.from(document.querySelectorAll('.song-card'));
         const historySongIds = new Set(@Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.History.Select(x => x.SongId).Distinct().ToList())));
         const recommendationGrid = document.getElementById('recommendation-grid');
+        const promptInput = document.getElementById('prompt-input');
+        const moodSelect = document.getElementById('mood-select');
+        const promptFeedback = document.getElementById('prompt-feedback');
+        const promptRecommendBtn = document.getElementById('prompt-recommend-btn');
 
-        function renderRecommendations(songs) {
-            if (!recommendationGrid) return;
-            recommendationGrid.innerHTML = (songs || []).map(song => {
-                const cover = song.coverUrl || '/Bepop/assets/img/b2.jpg';
-                const albumName = (song.album && song.album.name) ? song.album.name : '-';
-                return `<div class="col-6 col-md-4 col-lg-3 py-2 recommendation-card">
-                    <div class="list-item r box">
-                        <div class="media"><a class="media-content" style="background-image:url(${cover})"></a></div>
+       
+        function recommendationCard(song) {
+            const cover = song.coverUrl || '/Bepop/assets/img/b2.jpg';
+            const albumName = (song.album && song.album.name) ? song.album.name : '-';
+            const songUrl = `@Url.Action("SongDetail", "Default")?id=${song.id}&autoPlay=true`;
+            return `<div class="col-6 col-md-4 col-lg-3 py-2 recommendation-card">
+                    <div class="list-item r box song-card-modern">
+                        <div class="media"><a href="${songUrl}" class="media-content" style="background-image:url('${cover}')"></a></div>
                         <div class="list-content p-2">
                             <div class="list-body"><span class="list-title text-white">${song.name}</span><div class="text-muted text-sm">${albumName}</div></div>
                         </div>
                     </div>
                 </div>`;
-            }).join('');
+        }
+
+        function renderRecommendations(songs) {
+            if (!recommendationGrid) return;
+            recommendationGrid.innerHTML = (songs || []).map(recommendationCard).join('');
         }
 
         async function refreshRecommendations() {
@@ -132,9 +228,43 @@
                 renderRecommendations(data.songs);
             }
         }
+
+        async function requestPromptRecommendations() {
+            const prompt = (promptInput.value || '').trim();
+            const fallbackMood = moodSelect.value;
+            promptRecommendBtn.disabled = true;
+            promptFeedback.textContent = 'AI önerileri hazırlanıyor...';
+
+            const endpoint = prompt
+                ? `@Url.Action("PromptRecommendations", "Default")?take=8&prompt=${encodeURIComponent(prompt)}`
+                : `@Url.Action("Discover", "Default")?mood=${encodeURIComponent(fallbackMood)}`;
+
+            if (!prompt) {
+                window.location.href = endpoint;
+                return;
+            }
+
+            try {
+                const response = await fetch(endpoint);
+                const data = await response.json();
+                if (!response.ok || !data.ok) {
+                    promptFeedback.textContent = data.message || 'Öneriler alınamadı.';
+                    return;
+                }
+
+                renderRecommendations(data.songs || []);
+                promptFeedback.textContent = `"${prompt}" promptuna uygun öneriler güncellendi.`;
+            } catch {
+                promptFeedback.textContent = 'Sunucuya erişilemedi.';
+            } finally {
+                promptRecommendBtn.disabled = false;
+            }
+        }
+
         let favorites = new Set(JSON.parse(localStorage.getItem('bePopFavorites') || '[]'));
         let currentSongId = 0;
         let startedAt = null;
+
         function syncFavoriteButtons() {
             document.querySelectorAll('.favorite-btn').forEach(btn => {
                 const songId = Number(btn.dataset.songId || 0);
@@ -181,8 +311,9 @@
                 applyFilters();
             });
         });
+
         document.querySelectorAll('.play-btn').forEach(btn => {
-           btn.addEventListener('click', async () => {
+            btn.addEventListener('click', async () => {
                 currentSongId = Number(btn.dataset.songId || 0);
                 const sourceResponse = await fetch(`@Url.Action("SongSource", "Default")?songId=${currentSongId}`);
                 const sourceData = await sourceResponse.json();
@@ -190,15 +321,14 @@
                     status.textContent = sourceData.message || 'Şarkı kaynağına erişilemedi.';
                     return;
                 }
+
                 player.src = sourceData.source;
                 player.play();
                 startedAt = Date.now();
                 status.textContent = 'Çalıyor...';
             });
         });
-        searchInput.addEventListener('input', applyFilters);
-        filterSelect.addEventListener('change', applyFilters);
-        player.addEventListener('ended', sendPlayHistory);
+        
 
         async function sendPlayHistory() {
             if (!currentSongId || !startedAt) return;
@@ -219,8 +349,19 @@
                 status.textContent = 'Dinleme kaydı alınamadı.';
             }
         }
+
+        searchInput.addEventListener('input', applyFilters);
+        filterSelect.addEventListener('change', applyFilters);
+        player.addEventListener('ended', sendPlayHistory);
+        promptRecommendBtn.addEventListener('click', requestPromptRecommendations);
+        promptInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                requestPromptRecommendations();
+            }
+        });
+
         syncFavoriteButtons();
         applyFilters();
-        refreshRecommendations();
     })();
 </script>

@@ -23,7 +23,18 @@ namespace BePopJwt.API.Controllers
             var result = await playerService.GetAccessibleSongsAsync(userId.Value);
             return result.IsSuccess ? Ok(result) : BadRequest(result);
         }
+        [HttpGet("recommendations-by-prompt")]
+        public async Task<IActionResult> GetPromptRecommendations([FromQuery] string prompt, [FromQuery] int take = 8)
+        {
+            var userId = GetUserId();
+            if (userId is null)
+            {
+                return Unauthorized();
+            }
 
+            var result = await playerService.GetPromptBasedRecommendationsAsync(userId.Value, prompt, Math.Clamp(take, 1, 20));
+            return result.IsSuccess ? Ok(result) : BadRequest(result);
+        }
         [HttpGet("recommendations")]
         public async Task<IActionResult> GetRecommendations([FromQuery] int take = 6)
         {
