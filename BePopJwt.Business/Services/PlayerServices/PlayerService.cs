@@ -21,15 +21,12 @@ namespace BePopJwt.Business.Services.PlayerServices
         IUserSongHistoryRepository userSongHistoryRepository,
         IRecommendationService recommendationService,
         IOpenAiMoodService openAiMoodService,
-        UserManager<AppUser> userManager,
+       IAppUserRepository appUserRepository,
         IUnitOfWork unitOfWork) : IPlayerService
     {
         public async Task<BaseResult<List<ResultSongWithAlbumDto>>> GetAccessibleSongsAsync(int userId)
         {
-            var user = await userManager.Users
-                .Include(x => x.Package)
-                .AsNoTracking()
-                .FirstOrDefaultAsync(x => x.Id == userId);
+            var user = await appUserRepository.GetByIdWithPackageAsync(userId);
 
             if (user is null)
             {
@@ -45,10 +42,7 @@ namespace BePopJwt.Business.Services.PlayerServices
         }
         public async Task<BaseResult<string>> GetSongSourceAsync(int userId, int songId)
         {
-            var user = await userManager.Users
-                .Include(x => x.Package)
-                .AsNoTracking()
-                .FirstOrDefaultAsync(x => x.Id == userId);
+            var user = await appUserRepository.GetByIdWithPackageAsync(userId);
 
             if (user is null)
             {
@@ -75,10 +69,7 @@ namespace BePopJwt.Business.Services.PlayerServices
         }
         public async Task<BaseResult<List<ResultSongWithAlbumDto>>> GetRecommendationsAsync(int userId, int take = 6)
         {
-            var user = await userManager.Users
-                .Include(x => x.Package)
-                .AsNoTracking()
-                .FirstOrDefaultAsync(x => x.Id == userId);
+            var user = await appUserRepository.GetByIdWithPackageAsync(userId);
 
             if (user is null)
             {
@@ -158,10 +149,7 @@ namespace BePopJwt.Business.Services.PlayerServices
         }
         public async Task<BaseResult<List<ResultSongWithAlbumDto>>> GetMoodBasedRecommendationsAsync(int userId, string mood, int take = 6)
         {
-            var user = await userManager.Users
-                .Include(x => x.Package)
-                .AsNoTracking()
-                .FirstOrDefaultAsync(x => x.Id == userId);
+            var user = await appUserRepository.GetByIdWithPackageAsync(userId);
 
             if (user is null)
             {
@@ -215,10 +203,7 @@ namespace BePopJwt.Business.Services.PlayerServices
         }
         public async Task<BaseResult<List<ResultSongWithAlbumDto>>> GetPromptBasedRecommendationsAsync(int userId, string prompt, int take = 8)
         {
-            var user = await userManager.Users
-                .Include(x => x.Package)
-                .AsNoTracking()
-                .FirstOrDefaultAsync(x => x.Id == userId);
+            var user = await appUserRepository.GetByIdWithPackageAsync(userId);
 
             if (user is null)
             {
@@ -280,10 +265,7 @@ namespace BePopJwt.Business.Services.PlayerServices
 
         public async Task<BaseResult<ResultUserSongHistoryDto>> PlaySongAsync(int userId, PlaySongRequestDto request)
         {
-            var user = await userManager.Users
-                .Include(x => x.Package)
-                .AsNoTracking()
-                .FirstOrDefaultAsync(x => x.Id == userId);
+            var user = await appUserRepository.GetByIdWithPackageAsync(userId);
 
             if (user is null)
             {

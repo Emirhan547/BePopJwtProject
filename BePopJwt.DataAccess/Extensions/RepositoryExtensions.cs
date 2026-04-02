@@ -6,6 +6,7 @@ using BePopJwt.DataAccess.Repositories.BannerRepositories;
 using BePopJwt.DataAccess.Repositories.PackageRepositories;
 using BePopJwt.DataAccess.Repositories.PlayerRepositories;
 using BePopJwt.DataAccess.Repositories.SongRepositories;
+using BePopJwt.DataAccess.Repositories.UserRepositories;
 using BePopJwt.DataAccess.Repositories.UserSongRepositories;
 using BePopJwt.DataAccess.Uow;
 using Microsoft.EntityFrameworkCore;
@@ -27,6 +28,7 @@ namespace BePopJwt.DataAccess.Extensions
             services.AddScoped<IPackageRepository, PackageRepository>();
             services.AddScoped<ISongRepository, SongRepository>();
             services.AddScoped<IPlayerRepository, PlayerRepository>();
+            services.AddScoped<IAppUserRepository, AppUserRepository>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<IUserSongHistoryRepository, UserSongHistoryRepository>();
             services.AddScoped<AuditInterceptor>();

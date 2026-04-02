@@ -3,6 +3,7 @@ using BePopJwt.Business.Dtos.AuthDtos;
 using BePopJwt.Business.Dtos.UserDtos;
 using BePopJwt.Business.Validators.AuthValidators;
 using BePopJwt.DataAccess.Context;
+using BePopJwt.DataAccess.Repositories.UserRepositories;
 using BePopJwt.Entity.Entities;
 using FluentValidation;
 
@@ -23,8 +24,9 @@ namespace BePopJwt.Business.Services.AuthServices
         IValidator<RegisterDto> registerValidator,
         IValidator<LoginDto> loginValidator,
         IConfiguration configuration,
-        AppDbContext context) : IAuthService
-        
+       AppDbContext context,
+        IAppUserRepository appUserRepository) : IAuthService
+
     {
         public async Task<BaseResult<AuthResponseDto>> RegisterAsync(RegisterDto dto)
     {
@@ -72,11 +74,9 @@ namespace BePopJwt.Business.Services.AuthServices
             return BaseResult<AuthResponseDto>.Fail(validation.Errors);
         }
 
-        var user = await userManager.Users
-            .Include(x => x.Package)
-            .FirstOrDefaultAsync(x => x.Email == dto.Email);
+            var user = await appUserRepository.GetByEmailWithPackageAsync(dto.Email);
 
-        if (user is null)
+            if (user is null)
         {
             return BaseResult<AuthResponseDto>.Fail("Kullanıcı bulunamadı.");
         }
@@ -93,9 +93,7 @@ namespace BePopJwt.Business.Services.AuthServices
     }
         public async Task<BaseResult<AuthResponseDto>> ChangePackageAsync(int userId, int packageId)
         {
-            var user = await userManager.Users
-                .Include(x => x.Package)
-                .FirstOrDefaultAsync(x => x.Id == userId);
+            var user = await appUserRepository.GetByIdWithPackageAsync(userId);
             if (user is null)
             {
                 return BaseResult<AuthResponseDto>.Fail("Kullanıcı bulunamadı.");
@@ -122,9 +120,7 @@ namespace BePopJwt.Business.Services.AuthServices
 
         public async Task<BaseResult<UserProfileDto>> GetProfileAsync(int userId)
         {
-            var user = await userManager.Users
-                .Include(x => x.Package)
-                .FirstOrDefaultAsync(x => x.Id == userId);
+            var user = await appUserRepository.GetByIdWithPackageAsync(userId);
 
             if (user is null)
             {
@@ -145,9 +141,7 @@ namespace BePopJwt.Business.Services.AuthServices
         }
         public async Task<BaseResult<UserProfileDto>> UpdateProfileAsync(int userId, UpdateProfileDto dto)
         {
-            var user = await userManager.Users
-                .Include(x => x.Package)
-                .FirstOrDefaultAsync(x => x.Id == userId);
+            var user = await appUserRepository.GetByIdWithPackageAsync(userId);
 
             if (user is null)
             {
@@ -163,20 +157,16 @@ namespace BePopJwt.Business.Services.AuthServices
                 return BaseResult<UserProfileDto>.Fail("Kullanıcı adı, e-posta ve görünen ad zorunludur.");
             }
 
-            var existingWithUserName = await userManager.Users
-                .AsNoTracking()
-                .FirstOrDefaultAsync(x => x.UserName == userName && x.Id != userId);
+            var hasExistingUserName = await appUserRepository.ExistsByUserNameAsync(userName, userId);
 
-            if (existingWithUserName is not null)
+            if (hasExistingUserName)
             {
                 return BaseResult<UserProfileDto>.Fail("Bu kullanıcı adı zaten kullanılıyor.");
             }
 
-            var existingWithEmail = await userManager.Users
-                .AsNoTracking()
-                .FirstOrDefaultAsync(x => x.Email == email && x.Id != userId);
+            var hasExistingEmail = await appUserRepository.ExistsByEmailAsync(email, userId);
 
-            if (existingWithEmail is not null)
+            if (hasExistingEmail)
             {
                 return BaseResult<UserProfileDto>.Fail("Bu e-posta adresi zaten kullanılıyor.");
             }

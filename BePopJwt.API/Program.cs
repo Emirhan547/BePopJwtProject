@@ -1,5 +1,6 @@
 using Amazon;
 using Amazon.S3;
+using BePopJwt.API.Extensions;
 using BePopJwt.API.Services.Storage;
 using BePopJwt.Business.Extensions;
 using BePopJwt.Business.Services.StorageServices;
@@ -21,57 +22,19 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddRepositoriesExt(builder.Configuration);
 builder.Services.AddServiceRegistrationExt();
-builder.Services.AddIdentity<AppUser, IdentityRole<int>>()
-    .AddEntityFrameworkStores<AppDbContext>()
-    .AddDefaultTokenProviders();
 
-var jwtSection = builder.Configuration.GetSection("Jwt");
-var jwtKey = jwtSection["Key"] ?? "BePopJwt_Development_Key_Change_This_Immediately_123456";
-var jwtIssuer = jwtSection["Issuer"] ?? "BePopJwt";
-var jwtAudience = jwtSection["Audience"] ?? "BePopJwtClients";
 
-builder.Services
-    .AddAuthentication(options =>
-    {
-        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-    })
-    .AddJwtBearer(options =>
-    {
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidateIssuerSigningKey = true,
-            ValidateLifetime = true,
-            ValidIssuer = jwtIssuer,
-            ValidAudience = jwtAudience,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
-            ClockSkew = TimeSpan.Zero
-        };
-    });
-
+builder.Services.AddIdentityServices();
+builder.Services.AddJwtAuthentication(builder.Configuration);
 builder.Services.AddAuthorization();
-builder.Services.AddSingleton<IAmazonS3>(sp =>
-{
-    var config = sp.GetRequiredService<IConfiguration>();
 
-    return new AmazonS3Client(
-        config["AWS:AccessKey"],
-        config["AWS:SecretKey"],
-        RegionEndpoint.GetBySystemName(config["AWS:Region"])
-    );
-});
-builder.Services.AddScoped<IAudioStorageService, S3AudioStorageService>();
+builder.Services.AddAwsStorage(builder.Configuration);
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+
 var app = builder.Build();
-using (var scope = app.Services.CreateScope())
-{
-    var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-}
-// Configure the HTTP request pipeline.
+
 if (app.Environment.IsDevelopment())
 {
     app.MapScalarApiReference();
@@ -83,4 +46,5 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
 app.Run();
