@@ -16,7 +16,7 @@
                         <img src="@(string.IsNullOrWhiteSpace(Model.CoverUrl) ? "/Bepop/assets/img/b5.jpg" : Model.CoverUrl)" class="w-100 rounded shadow" alt="@Model.Name" />
                     </div>
                     <div class="col-lg-8">
-                        <p class="text-muted mb-1">NOW PLAYING</p>
+                       
                         <h1 class="display-4 text-white font-weight-bold">@Model.Name</h1>
                         <h5 class="text-muted">@(Model.Album?.Name ?? "Single")</h5>
                         <p class="mt-3">
@@ -27,8 +27,8 @@
                         <div class="mt-4 p-3 b-a rounded bg-dark">
                             <audio id="detail-player" controls class="w-100"></audio>
                             <div class="mt-2">
-                                <button id="play-song-btn" class="btn btn-primary">Play</button>
-                                <a href="@Url.Action("Discover", "Discovery")" class="btn btn-outline-light">Discover'a Dön</a>
+                                <button id="play-song-btn" class="btn btn-primary">Oynat</button>
+                                <a href="@Url.Action("Discover", "Discovery")" class="btn btn-outline-light">Keşfet'e Dön</a>
                             </div>
                         </div>
                     </div>

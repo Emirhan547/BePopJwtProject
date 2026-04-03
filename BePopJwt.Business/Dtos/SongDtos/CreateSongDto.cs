@@ -15,7 +15,7 @@ namespace BePopJwt.Business.Dtos.SongDtos
 
         public string FilePath { get; set; }
 
-        public string CoverUrl { get; set; }
+        public string? CoverUrl { get; set; }
 
         public PackageLevel Level { get; set; }
 

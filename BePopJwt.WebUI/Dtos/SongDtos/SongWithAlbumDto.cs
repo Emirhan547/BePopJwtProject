@@ -8,6 +8,7 @@
         public string FilePath { get; set; } = string.Empty;
         public string CoverUrl { get; set; } = string.Empty;
         public int Level { get; set; }
+         public int AlbumId { get; set; }
         public SongAlbumSummaryDto? Album { get; set; }
     }
 }

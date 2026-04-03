@@ -11,12 +11,12 @@
         <div class="collapse navbar-collapse order-2 order-lg-1" id="navbarCollapse">
             <ul class="navbar-nav" data-nav>
                
-                <li class="nav-item"><a asp-controller="Discovery" asp-action="Discover" class="nav-link"><span class="nav-text">Discover</span></a></li>
-                <li class="nav-item"><a asp-controller="Discovery" asp-action="Charts" class="nav-link"><span class="nav-text">Charts</span></a></li>
-                <li class="nav-item"><a asp-controller="Artist" asp-action="Artists" class="nav-link"><span class="nav-text">Artists</span></a></li>
+                <li class="nav-item"><a asp-controller="Discovery" asp-action="Discover" class="nav-link"><span class="nav-text">Keşfet</span></a></li>
+                <li class="nav-item"><a asp-controller="Discovery" asp-action="Charts" class="nav-link"><span class="nav-text">Trendler</span></a></li>
+                <li class="nav-item"><a asp-controller="Artist" asp-action="Artists" class="nav-link"><span class="nav-text">Sanatçılar</span></a></li>
                 @if (session.IsAuthenticated)
                 {
-                    <li class="nav-item"><a asp-controller="History" asp-action="History" class="nav-link"><span class="nav-text">History</span></a></li>
+                    <li class="nav-item"><a asp-controller="History" asp-action="History" class="nav-link"><span class="nav-text">Geçmiş</span></a></li>
                     <li class="nav-item"><a asp-controller="Package" asp-action="Packages" class="nav-link"><span class="nav-text">Paketler</span></a></li>
                     <li class="nav-item"><a asp-controller="Profile" asp-action="Profile" class="nav-link"><span class="nav-text">Profil</span></a></li>
                 }
@@ -26,7 +26,7 @@
             <ul class="nav navbar-menu order-1 order-lg-2 align-items-center">
                 @if (session.IsAuthenticated)
                 {
-                    <li class="nav-item mr-2"><span class="badge badge-pill badge-primary">@session.PackageName (@session.PackageLevel)</span></li>
+                    <li class="nav-item mr-2"><span class="badge badge-pill badge-primary">@session.PackageName </span></li>
                 
                     <li class="nav-item mr-2"><span class="text-muted">@session.UserName</span></li>
                     <li class="nav-item"><a class="nav-link" asp-controller="Auth" asp-action="Logout">Logout</a></li>

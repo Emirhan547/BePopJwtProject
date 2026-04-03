@@ -59,30 +59,37 @@ namespace BePopJwt.API.Controllers
         public async Task<IActionResult> UploadAudio([FromForm] IFormFile file)
         {
             if (file is null || file.Length == 0)
-            {
-                return BadRequest(new { ok = false, message = "Dosya boş olamaz." });
-            }
+                return BadRequest("Dosya boş");
 
-            // 🔒 extension kontrol
             var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
+
             if (extension is not ".mp3" and not ".wav" and not ".m4a")
-            {
-                return BadRequest(new { ok = false, message = "Sadece mp3/wav/m4a yüklenebilir." });
-            }
+                return BadRequest("Sadece mp3/wav/m4a");
 
-            // 🔒 mime kontrol
             if (!file.ContentType.StartsWith("audio/"))
-            {
-                return BadRequest(new { ok = false, message = "Geçersiz dosya tipi." });
-            }
+                return BadRequest("Geçersiz mime");
 
-            var uploadedUrl = await audioStorageService.UploadSongAsync(file);
+            var url = await audioStorageService.UploadFileAsync(file, "songs");
 
-            return Ok(new
-            {
-                ok = true,
-                url = uploadedUrl
-            });
+            return Ok(new { url });
+        }
+        [HttpPost("upload-image")]
+        public async Task<IActionResult> UploadImage([FromForm] IFormFile file)
+        {
+            if (file is null || file.Length == 0)
+                return BadRequest("Dosya boş");
+
+            var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
+
+            if (extension is not ".jpg" and not ".jpeg" and not ".png")
+                return BadRequest("Sadece jpg/jpeg/png");
+
+            if (!file.ContentType.StartsWith("image/"))
+                return BadRequest("Geçersiz mime");
+
+            var url = await audioStorageService.UploadFileAsync(file, "images");
+
+            return Ok(new { url });
         }
     }
 }

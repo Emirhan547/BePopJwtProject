@@ -27,7 +27,10 @@ public class ArtistController(
         }
 
         var songs = await songService.GetSongsWithAlbumAsync();
-        ViewBag.ArtistSongs = songs.Where(x => artist.Albums.Any(a => a.Id == (x.Album?.Id ?? 0))).ToList();
+      var artistAlbumIds = artist.Albums.Select(a => a.Id).ToHashSet();
+        ViewBag.ArtistSongs = songs
+            .Where(x => artistAlbumIds.Contains(x.AlbumId) || artistAlbumIds.Contains(x.Album?.Id ?? 0))
+            .ToList();
         ViewBag.Session = userSessionService.GetCurrent();
         return View("ArtistDetail", artist);
     }

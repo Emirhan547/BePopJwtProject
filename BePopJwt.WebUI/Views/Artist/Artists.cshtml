@@ -4,27 +4,90 @@
     ViewData["Title"] = "Artists";
     Layout = "~/Views/Shared/_UILayout.cshtml";
 }
+
+<style>
+    .artist-grid-item {
+        text-align: center;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        max-width: 180px;
+    }
+
+        .artist-grid-item:hover {
+            transform: scale(1.08);
+        }
+
+    .artist-avatar {
+        width: 160px;
+        height: 160px;
+        object-fit: cover;
+        border-radius: 50%;
+        transition: all 0.3s ease;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+    }
+
+    .artist-name {
+        margin-top: 12px;
+        font-size: 15px;
+        color: #ffffff;
+        font-weight: 500;
+    }
+
+    .artist-bio {
+        font-size: 12px;
+        color: #9e9e9e;
+        margin-top: 6px;
+        line-height: 1.4;
+        height: 34px; /* sabit yükseklik */
+        overflow: hidden;
+    }
+
+    .artist-wrapper {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 40px;
+    }
+</style>
+
 <div id="main" class="layout-row flex">
     <div id="content" class="flex ">
         <div class="page-content page-container" id="page-content">
             <div class="padding sr">
-                <div class="page-hero"><h1 class="display-4 text-white">Artists</h1><p class="text-muted">Backend artist + albums verilerinden dinamik liste.</p></div>
-                <div class="row row-sm">
+
+                <!-- HEADER -->
+                <div class="page-hero text-center mb-5">
+                    <h1 class="display-4 text-white">Sanatçılar</h1>
+                    <p class="text-muted">Favori sanatçılarını keşfet.</p>
+                </div>
+
+                <!-- GRID -->
+                <div class="artist-wrapper">
                     @foreach (var artist in Model)
                     {
-                        <div class="col-12 col-md-6 col-lg-4 py-3">
-                            <div class="list-item r box">
-                                <div class="media"><a class="media-content" style="background-image:url(@(string.IsNullOrWhiteSpace(artist.ImageUrl) ? "/Bepop/assets/img/a1.jpg" : artist.ImageUrl))"></a></div>
-                                <div class="list-content p-3">
-                                    <div class="text-white h5">@artist.Name</div>
-                                    <div class="text-muted text-sm mb-2">@artist.Bio</div>
-                                    <div class="text-muted text-sm">Albüm (@artist.Albums.Count): @string.Join(", ", artist.Albums.Select(a => a.Name).Take(3))</div>
-                                    <a href="@Url.Action("ArtistDetail", "Artist", new { id = artist.Id })" class="btn btn-sm btn-primary mt-3">Detayı Gör</a>
-                                </div>
+                        <a href="@Url.Action("ArtistDetail", "Artist", new { id = artist.Id })"
+                               class="artist-grid-item">
+
+                            <!-- IMAGE -->
+                            <img src="@(string.IsNullOrWhiteSpace(artist.ImageUrl) ? "/Bepop/assets/img/a1.jpg" : artist.ImageUrl)"
+                                 class="artist-avatar" />
+
+                            <!-- NAME -->
+                            <div class="artist-name">
+                                @artist.Name
                             </div>
-                        </div>
+
+                            <!-- SHORT BIO -->
+                            <div class="artist-bio">
+                                @(artist.Bio?.Length > 60
+                                    ? artist.Bio.Substring(0, 60) + "..."
+                                    : artist.Bio)
+                            </div>
+
+                        </a>
                     }
                 </div>
+
             </div>
         </div>
     </div>

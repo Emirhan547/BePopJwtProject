@@ -8,18 +8,18 @@ namespace BePopJwt.API.Services.Storage
 {
     public class S3AudioStorageService(IAmazonS3 s3Client, IConfiguration configuration) : IAudioStorageService
     {
-        public async Task<string> UploadSongAsync(IFormFile file, CancellationToken cancellationToken = default)
+        public async Task<string> UploadFileAsync(IFormFile file, string folder, CancellationToken cancellationToken = default)
         {
             var bucketName = configuration["AWS:S3:BucketName"];
+
             if (string.IsNullOrWhiteSpace(bucketName))
-            {
                 throw new InvalidOperationException("AWS:S3:BucketName ayarı bulunamadı.");
-            }
 
             var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
-            var key = $"songs/{Guid.NewGuid():N}{extension}";
+            var key = $"{folder}/{Guid.NewGuid():N}{extension}";
 
             await using var stream = file.OpenReadStream();
+
             var request = new PutObjectRequest
             {
                 BucketName = bucketName,
@@ -32,10 +32,9 @@ namespace BePopJwt.API.Services.Storage
             await s3Client.PutObjectAsync(request, cancellationToken);
 
             var cdnBase = configuration["AWS:S3:CdnBaseUrl"];
+
             if (!string.IsNullOrWhiteSpace(cdnBase))
-            {
                 return $"{cdnBase.TrimEnd('/')}/{key}";
-            }
 
             return $"https://{bucketName}.s3.amazonaws.com/{key}";
         }

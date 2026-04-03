@@ -7,6 +7,6 @@ namespace BePopJwt.Business.Services.StorageServices
 {
     public interface IAudioStorageService
     {
-        Task<string> UploadSongAsync(IFormFile file, CancellationToken cancellationToken = default);
+        Task<string> UploadFileAsync(IFormFile file, string folder, CancellationToken cancellationToken = default);
     }
 }
